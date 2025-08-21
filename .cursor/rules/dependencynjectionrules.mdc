@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+Use Koin for KMP (no Hilt in shared code). Hilt allowed only in :app-android if required, with a Koin bridge.
+
+Each feature exposes a koinModule in its :feature:* module.
+
+Dispatchers provided via DispatcherProvider interface in :core:ui with expect/actual if needed.
+
+Singletons only in :core:* or platform modules; features must not create global singletons.

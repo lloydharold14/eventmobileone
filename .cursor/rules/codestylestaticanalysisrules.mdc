@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+.editorconfig + ktlint + detekt: CI must pass.
+
+Package naming: com.eventsmobileone.<layer>.<module>.
+
+Data classes are immutable; copy for mutations.
+
+Prefer sealed interfaces over enums for extensible domains.

@@ -1,0 +1,381 @@
+---
+alwaysApply: true
+---
+
+## 0) Targets & Baseline
+
+* **Kotlin**: 2.x (keep consistent across all modules)
+* **Compose Multiplatform**: org.jetbrains.compose
+* **Targets**: `android`, `iosArm64`, `iosSimulatorArm64`, `desktop` (JVM). Web is experimental → do not add without approval.
+* **Min Android**: 24
+* **JDK**: 17
+* **Serialization**: `kotlinx.serialization`
+* **Coroutines**: `kotlinx.coroutines`
+
+**Absolute rule**: Shared code compiles for all configured targets (no `androidMain` imports in `commonMain`).
+
+---
+
+## 1) High‑Level Architecture
+
+**Clean Architecture + Feature Modules + Shared Core**
+
+```
+:app-android                (android launcher)
+:app-ios                    (compose-ios entry / bridge)
+:app-desktop                (desktop launcher)
+
+:core:model                 (pure Kotlin data models)
+:core:domain                (use cases, business rules)
+:core:data                  (repositories, DTO mappers)
+:core:network               (Ktor client, serializers, interceptors)
+:core:database              (SQLDelight + DAOs)
+:core:designsystem          (theme, tokens, DS atoms/molecules)
+:core:ui                    (shared UI utils, base scaffolds, navigation contracts)
+:core:analytics             (analytics contracts only)
+:core:featureflags          (FF contracts + key types)
+:core:testing               (test fixtures, fakes, turbine utils)
+
+:platform:analytics-android (impl)
+:platform:analytics-ios     (impl)
+:platform:featureflags-remote (impl KMP if possible)
+
+:feature:auth               (screen(s) + vm + presentation)
+:feature:events             (browse/list/detail)
+:feature:search
+:feature:profile
+:feature:checkout
+```
+
+**Dependency rules** (enforced by Gradle):
+
+* `app-*` → depends on features + core modules only.
+* Features can depend on `:core:*` but **never on other features**.
+* `:core:*` must not depend on features.
+* Platform impls depend on their contract module only.
+* No circular deps. If needed, extract a new `:core:*` module.
+
+Cursor **must** reject PRs that violate these edges and suggest extracting a shared contract.
+
+---
+
+## 2) Navigation & State Management
+
+* **Navigation**: Use `Decompose` for KMP navigation. Contracts (routes, args) live in `:core:ui`.
+* **State**: Unidirectional MVI.
+
+  * `UiState` (immutable data class), `UiEvent` (user intents), `Effect` (one‑off side effects).
+  * `ViewModel` exposes `StateFlow<UiState>` + `Flow<Effect>`; accept events via `fun onEvent(UiEvent)`.
+  * Business work is executed in `domain` use cases; `data` is repository layer.
+* **Side‑effects**: use `viewModelScope` + injected dispatchers. No `GlobalScope`.
+* **Flows**: use `mapLatest`, `stateIn`, `shareIn` with explicit `SharingStarted`.
+* **Stability**: Annotate state with `@Immutable` where applicable; prefer value classes for ids.
+
+**Composition rules**:
+
+* No logic in Composables beyond mapping state to UI.
+* Composables must be **pure** and `@Composable` functions must be small.
+* Hoist state; prefer `rememberSaveable` only for UI state, not domain state.
+* Provide `Preview` only for Android/Desktop; gate with `if (PlatformPreview.enabled)` if shared.
+
+---
+
+## 3) Dependency Injection
+
+* Use **Koin** for KMP (no Hilt in shared code). Hilt allowed **only** in `:app-android` if required, with a Koin bridge.
+* Each feature exposes a `koinModule` in its `:feature:*` module.
+* Dispatchers provided via `DispatcherProvider` interface in `:core:ui` with expect/actual if needed.
+* Singletons only in `:core:*` or platform modules; features must not create global singletons.
+
+---
+
+## 4) Networking & Persistence
+
+* **HTTP**: Ktor Client in `:core:network` with engines per platform.
+* **Serialization**: `kotlinx.serialization` with explicit `@SerialName`.
+* **Errors**: Map network errors to a sealed `AppError` in `:core:model`.
+* **Persistence**: SQLDelight in `:core:database` (multiplatform driver). Repository caches use cases.
+* **Settings**: `com.russhwolf:multiplatform-settings` for key‑value.
+* **Feature flags**: contracts in `:core:featureflags`; platform/remote implementation in `:platform:*`.
+* **Analytics**: interface in `:core:analytics`; per‑platform impls in `:platform:*`.
+
+**Rules**:
+
+* No raw JSON parsing in features. Use DTOs + mappers in `:core:data`.
+* Time/Date via `kotlinx-datetime`; **no java.time in commonMain**.
+* HTTP logging only in Debug builds.
+
+---
+
+## 5) Design System & Accessibility
+
+* `:core:designsystem` owns theme, color tokens, typography, spacing, elevation, shapes.
+* **Components**: Atoms → Molecules → Organisms. Features compose DS components only.
+* No ad‑hoc colors/paddings in features; pull from tokens.
+* Strings & Images: use `org.jetbrains.compose.resources` (no Android‑only resources in commonMain).
+* Accessibility: content descriptions, minimum touch target, TalkBack/VoiceOver readable.
+
+---
+
+## 6) Gradle & Build Logic
+
+* Use **version catalogs** (`libs.versions.toml`).
+* Put shared config in `build-logic` convention plugins (e.g., `convention.kmp.library`, `convention.compose.feature`).
+* **Kotlin**: progressive mode ON, `-Xexplicit-api=strict` for `:core:*` and `:feature:*`.
+* **Warnings as errors** in CI; locally can be off but commit must be clean.
+* **Compose compiler metrics** behind `COMPOSE_METRICS=true` env; artifacts ignored by VCS.
+* **Binary compatibility validator** on public API modules.
+* **Dependency guard**: block new deps not in catalog.
+
+**Sample KMP block (for Cursor to reuse):**
+
+```kotlin
+kotlin {
+  androidTarget()
+  iosArm64(); iosSimulatorArm64()
+  jvm("desktop")
+  sourceSets {
+    commonMain.dependencies {
+      implementation(libs.kotlinx.coroutines)
+      implementation(libs.kotlinx.serialization)
+      implementation(libs.ktor.client.core)
+      implementation(libs.compose.runtime)
+      implementation(libs.compose.foundation)
+      implementation(libs.compose.components.resources)
+      implementation(libs.koin.core)
+    }
+    androidMain.dependencies { implementation(libs.ktor.client.okhttp) }
+    iosMain.dependencies { implementation(libs.ktor.client.darwin) }
+    desktopMain.dependencies { implementation(libs.ktor.client.java) }
+    commonTest.dependencies {
+      implementation(libs.kotlin.test)
+      implementation(libs.turbine)
+    }
+  }
+}
+```
+
+---
+
+## 7) Testing Policy
+
+* **Unit tests** mandatory for all use cases and repositories.
+* **Flow testing** with Turbine; no sleeps.
+* **UI tests**:
+
+  * Android: `compose-ui-test-junit4`.
+  * Desktop: snapshot tests for critical components if feasible.
+  * iOS UI tests are manual for now; do not add without approval.
+* Fakes live in `:core:testing` and are reused.
+* Coverage gate in CI for `:core:*` and features (fail < 80%).
+
+---
+
+## 8) Platform Boundaries (expect/actual)
+
+Declare contracts in `commonMain` and implement in platform source sets:
+
+* Haptics, Share/Intent, Clipboard
+* Secure Storage (Keychain/Keystore)
+* System Theme, Locale, Date/Time formatting
+
+Cursor must not call Android/iOS APIs from common code.
+
+---
+
+## 9) Performance & Stability Rules (Compose)
+
+* Use `@Stable`/`@Immutable` types for state; prefer `ImmutableList`/`PersistentList`.
+* Minimize recomposition: pass values not lambdas when possible, memoize expensive ops with `remember`.
+* Avoid `derivedStateOf` for simple mappings; use only when it prevents extra recompositions.
+* Lists: `Lazy*` with stable keys; avoid nested scroll coupling without need.
+* Images: remember loaders; no synchronous decoding on main.
+
+---
+
+## 10) Accessibility & i18n
+
+* All user‑facing strings in `compose-resources`.
+* No hardcoded text in UI.
+* Respect Dynamic Type / font scaling (where platform supports).
+* Enforce min contrast ratios.
+
+---
+
+## 11) Security & Secrets
+
+* Secrets in `.env` or local gradle properties; never committed.
+* Network timeouts sane defaults; TLS only.
+* PII redaction in logs; do not log tokens/ids.
+
+---
+
+## 12) Code Style & Static Analysis
+
+* `.editorconfig` + **ktlint** + **detekt**: CI must pass.
+* Package naming: `com.eventapp.<layer>.<module>`.
+* Data classes are immutable; copy for mutations.
+* Prefer sealed interfaces over enums for extensible domains.
+
+---
+
+## 13) Cursor AI Working Agreement
+
+**When editing code, Cursor must:**
+
+1. Respect module dependencies (see §1). If a change violates them, **stop** and propose a new `:core:*` contract.
+2. Prefer modifying existing modules vs. creating new ones. Creating modules requires adding to settings and build‑logic.
+3. Whenever it adds a feature screen, it must:
+
+   * Create `UiState`, `UiEvent`, `Effect`, `ViewModel` in the feature module.
+   * Add a route + Decompose component wiring.
+   * Provide previews for Android.
+   * Add tests: at least one VM test and one mapper test.
+4. Whenever it touches network or database code, it must:
+
+   * Update DTO ↔ Domain mappers.
+   * Add/extend repository interface in `:core:data` + use case in `:core:domain`.
+   * Provide fakes in `:core:testing` and tests.
+5. Whenever it adds a DS component, it must:
+
+   * Put primitives in `:core:designsystem`.
+   * Add a usage example in a `samples` package (not shipped).
+6. Never introduce platform APIs in `commonMain`.
+7. Keep public surface stable; if changed, update API dump and CHANGELOG.
+8. Update version catalog if new deps are introduced. No direct version strings in build files.
+9. Run and fix ktlint/detekt before proposing changes.
+
+---
+
+## 14) Commit, PR, and Review Rules
+
+* **Conventional Commits**: `feat(auth): add OTP screen` / `fix(events): null crash on filter` / `refactor(ui): extract badge chip`.
+* PRs ≤ 400 LOC diff (excluding generated). If larger, split or justify.
+* Every PR includes: checklist of tests, screenshots (Android), module graph check.
+* No TODOs left in code; use `// FIXME(ticket-id)` if unavoidable.
+
+**PR checklist (Cursor must include):**
+
+* [ ] Module dependencies respected
+* [ ] Unit/UI tests added or updated
+* [ ] Strings in resources; no hardcoded text
+* [ ] Ktlin/Detekt clean
+* [ ] API dump updated (if public API changed)
+* [ ] Docs/KDoc for new public types
+
+---
+
+## 15) Templates for Cursor (paste‑ready)
+
+### 15.1 Feature Skeleton
+
+```
+:feature:sample
+  ├── commonMain
+  │   ├── SampleScreen.kt       // Composables (pure)
+  │   ├── SampleViewModel.kt    // MVI state/effect/event
+  │   ├── navigation/SampleNode.kt // Decompose component
+  │   └── di/Module.kt          // Koin module
+  └── commonTest
+      └── SampleViewModelTest.kt
+```
+
+**ViewModel MVI skeleton**
+
+```kotlin
+@Immutable data class UiState(/*…*/)
+sealed interface UiEvent { /*…*/ }
+sealed interface Effect { /*…*/ }
+
+class SampleViewModel(
+  private val useCase: DoThing,
+  private val dispatchers: DispatcherProvider,
+) {
+  private val _state = MutableStateFlow(UiState())
+  val state: StateFlow<UiState> = _state.asStateFlow()
+  private val _effect = MutableSharedFlow<Effect>()
+  val effect: Flow<Effect> = _effect
+
+  fun onEvent(event: UiEvent) {
+    // reduce + launch side effects using useCase
+  }
+}
+```
+
+### 15.2 Repository Contract
+
+```kotlin
+interface EventsRepository {
+  suspend fun list(params: Query): Result<List<Event>>
+  suspend fun get(id: EventId): Result<Event>
+}
+```
+
+### 15.3 Use Case
+
+```kotlin
+class GetEvent(private val repo: EventsRepository) {
+  suspend operator fun invoke(id: EventId) = repo.get(id)
+}
+```
+
+### 15.4 expect/actual Service
+
+```kotlin
+// commonMain
+interface Haptics { fun tap() }
+expect fun haptics(): Haptics
+
+// androidMain
+actual fun haptics(): Haptics = AndroidHaptics()
+```
+
+### 15.5 Design System Token Example
+
+```kotlin
+object Spacing { val xs = 4.dp; val s = 8.dp; val m = 12.dp; val l = 16.dp; val xl = 24.dp }
+```
+
+---
+
+## 16) Don’ts
+
+* Don’t add AndroidX‑only APIs to shared modules.
+* Don’t use reflection or ServiceLoader in KMP.
+* Don’t bypass use cases from ViewModel.
+* Don’t fetch resources directly in domain/data.
+* Don’t use `MutableState` for domain state; use `StateFlow`.
+
+---
+
+## 17) Task Intake Examples (for Cursor)
+
+* "Add **event favorites**: create `FavoritesRepository`, use case, VM events (`ToggleFavorite`), DS icon button; persist with SQLDelight; tests for VM and repo; route from detail screen."
+* "Add **search screen**: debounced query, empty/loaded/error states, list with stable keys, paging via Ktor; analytics `search_performed` event on submit."
+* "Add **earnings badge** DS component\*\*: put in DS, demo composable, usage in `:feature:profile`, no business logic inside component."
+
+---
+
+## 18) CI Gates (Cursor must keep passing)
+
+* Build all targets
+* ktlint + detekt
+* Unit tests
+* Android UI tests (instrumented) for affected features
+* API dump check
+* Dependency graph check
+* Compose metrics (optional) not committed
+
+---
+
+## 19) How to Propose Architecture Changes
+
+1. Create `adr/NNN-title.md` with context, decision, alternatives.
+2. Open small spike PR to demonstrate viability.
+3. Only after approval, update rules here and migrate code.
+
+---
+
+## 20) Single‑Source of Truth
+
+If any rule here conflicts with existing code, **this document wins**. Update code accordingly or open an ADR.

@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+All user‑facing strings in compose-resources.
+
+No hardcoded text in UI.
+
+Respect Dynamic Type / font scaling (where platform supports).
+
+Enforce min contrast ratios.

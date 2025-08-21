@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+HTTP: Ktor Client in :core:network with engines per platform.
+
+Serialization: kotlinx.serialization with explicit @SerialName.
+
+Errors: Map network errors to a sealed AppError in :core:model.
+
+Persistence: SQLDelight in :core:database (multiplatform driver). Repository caches use cases.
+
+Settings: com.russhwolf:multiplatform-settings for key‑value.
+
+Feature flags: contracts in :core:featureflags; platform/remote implementation in :platform:*.
+
+Analytics: interface in :core:analytics; per‑platform impls in :platform:*.
+
+Rules:
+
+No raw JSON parsing in features. Use DTOs + mappers in :core:data.
+
+Time/Date via kotlinx-datetime; no java.time in commonMain.
+
+HTTP logging only in Debug builds.

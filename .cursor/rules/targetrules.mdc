@@ -1,0 +1,20 @@
+---
+alwaysApply: false
+---
+Targets & Baseline
+
+Kotlin: 2.x (keep consistent across all modules)
+
+Compose Multiplatform: org.jetbrains.compose
+
+Targets: android, iosArm64, iosSimulatorArm64, desktop (JVM). Web is experimental → do not add without approval.
+
+Min Android: 24
+
+JDK: 17
+
+Serialization: kotlinx.serialization
+
+Coroutines: kotlinx.coroutines
+
+Absolute rule: Shared code compiles for all configured targets (no androidMain imports in commonMain).
