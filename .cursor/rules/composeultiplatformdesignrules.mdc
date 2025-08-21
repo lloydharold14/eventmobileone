@@ -1,0 +1,180 @@
+---
+alwaysApply: true
+---
+awesome — here’s a **ready‑to‑paste ruleset** you can drop into **Cursor → Workspace Rules** (or a new “Design System” rules file). It turns Cursor into a strict UI copilot for your **Compose Multiplatform** event app, pushing best practices in design, accessibility, performance, and code quality.
+
+---
+
+# 🎨 Event App — Compose Multiplatform Design & UI Rules (for Cursor)
+
+## 0) Scope & Dependency Direction
+
+* Design stack modules only (no feature → design dependencies):
+  `:design:tokens → :design:foundation → :design:icons → :design:primitives → :design:components → :design:themes → :design:catalog`
+* Feature modules consume `:design:components` (never `:design:tokens` directly).
+
+## 1) Design Principles (Event UX)
+
+* Prioritize: **event title → date/time → price → primary action**.
+* Keep actions sticky/visible on mobile; reveal extra details progressively.
+* Motion communicates state changes (filtering, sorting, ticket steps), not decoration.
+* Provide **compact/comfortable** density variants (mobile).
+* Respect **reduced motion** preferences.
+
+## 2) Tokens → Roles (Single Source of Truth)
+
+* Never hardcode colors/sizes/typography in components.
+* Read values only through `EventTheme` (composition locals).
+* Use role names (e.g., `primary`, `surface`, `error`) not brand hex codes.
+* If a specific value is missing, add a **token** first, then consume it.
+
+## 3) Theming & Locals
+
+* All public components must work in **light/dark** and **HighContrast** themes.
+* Provide locals for spacing, radius, elevations, content paddings.
+* Use `@Immutable`/`@Stable` on token data classes to reduce recompositions.
+
+## 4) Accessibility (Required)
+
+* **Min touch target**: 48×48 dp (mobile).
+* **Contrast**: maintain ≥ 4.5:1 for body text; ≥ 3:1 for large text and UI elements.
+* Set `contentDescription`, `semantics { }`, and `role` where meaningful.
+* Keyboard focus ring must be visible; define deterministic focus order.
+* Support **RTL** mirroring and **dynamic text scaling** (no clipped text).
+* All icons used as buttons must include an accessible label or be paired with text.
+
+## 5) Component API & Composition
+
+* Public composables:
+
+  * Signature pattern: minimal params + slots for content (where appropriate).
+  * Accept `modifier: Modifier = Modifier` as the last param before slots.
+  * Expose **state‑hoisted** variants (`value`, `onValueChange`) for interactive widgets.
+* No side effects in default parameters. Keep composables **pure**.
+* Provide thoughtful defaults (padding, arrangement) via theme spacing tokens.
+* Use **slots over booleans** when UI needs are flexible (e.g., `leadingContent`, `trailingContent`).
+
+## 6) Layout & Responsiveness
+
+* Favor constraint‑free, adaptive layouts:
+
+  * Use `BoxWithConstraints`, window size classes, or breakpoint helpers.
+  * Provide density presets (compact/comfortable) via a local or param.
+* Avoid nested `Row/Column` chains; prefer single layout with proper `Arrangement/Alignment`.
+
+## 7) Images & Media
+
+* Reserve aspect ratios; include `contentScale`.
+* Provide skeleton/placeholder shimmer for loading states (tokenized motion).
+* Don’t block UI waiting on images; avoid layout shift with reserved size.
+
+## 8) Animation & Motion
+
+* Use **motion tokens** (durations/easings) from the design system.
+* Prefer `AnimatedContent`, `animate*AsState`, `updateTransition` for meaningful transitions.
+* Respect a `LocalReducedMotion` flag; offer instant transitions when true.
+* Avoid infinite, high‑frequency animations that trigger continuous recomposition.
+
+## 9) Performance Rules
+
+* Mark token and parameter models `@Immutable` or `@Stable`.
+* Use `remember` for expensive calculations (fonts, painters, layouts).
+* Keep `Modifier` order correct (size → clip → background → border → padding).
+* In lists: use keys, avoid heavy `equals`, ensure stable params.
+* No heavy work in composition; push to ViewModel/Interactor layer.
+
+## 10) Internationalization / Localization
+
+* Strings must come from shared resources (KMP resources or equivalent).
+* No concatenation of localized phrases (use formatted strings).
+* Always account for **long text** and **RTL**.
+
+## 11) Error/Empty/Loading States
+
+* Every component or screen with async data must define **Loading**, **Empty**, **Error** states.
+* Visual affordances: icons, short copy, action to recover/retry.
+
+## 12) Documentation & Previews
+
+* Each public component:
+
+  * KDoc with usage notes and state table (props → behavior).
+  * At least **3 previews** in `:design:catalog`: default, dark, high‑contrast, and a stress case (long text/RTL).
+* Include accessibility guidance in docs (labels, roles, focus behavior).
+
+## 13) Testing & Quality Gates
+
+* Catalog acts as your visual spec; add golden/screenshot tests for critical components.
+* Lints: enable `ktlint`/`detekt` with style rules for composables.
+* CI must fail if:
+
+  * A component uses raw values instead of tokens.
+  * Previews are missing for a new component.
+  * Accessibility labels/roles are missing for interactive elements.
+
+## 14) PR Definition of Done (Cursor must check)
+
+* [ ] Uses tokens via `EventTheme` only; no hardcoded UI values.
+* [ ] Light/Dark/HighContrast verified in catalog.
+* [ ] A11y: labels, focus, contrast, touch target compliant.
+* [ ] Responsive: works on phone widths (previews).
+* [ ] Loading/Empty/Error (if async or data‑driven).
+* [ ] KDoc + 3 previews + catalog entry.
+* [ ] No performance smells (unnecessary recomposition, missing `remember`).
+
+## 15) Component Blueprint (Cursor must follow)
+
+When creating a new component, generate:
+
+1. **API file** (public composable) in `:design:components`.
+2. **Internal primitives** (if needed) in `:design:primitives`.
+3. **Docs**: KDoc with usage, states, and accessibility notes.
+4. **Previews**: default, dark, high‑contrast, long‑text/RTL.
+5. **Catalog demo**: interactive sample with knobs (density, state toggles).
+
+## 16) Example Commands for Cursor (use these patterns)
+
+### A) Create a new component (e.g., FilterChip)
+
+> Generate `FilterChip` in `:design:components` with params:
+> `selected: Boolean`, `onClick: () -> Unit`, `label: String`, `leading: (@Composable () -> Unit)? = null`, `trailing: (@Composable () -> Unit)? = null`, `modifier: Modifier = Modifier`.
+> Use spacing from theme, icon slots optional, 48dp min touch target.
+> Provide previews: light/dark/high‑contrast + long label + RTL.
+> Add a catalog screen with toggles for selected state and density.
+> Ensure no hardcoded colors/sizes; read from tokens via `EventTheme`.
+
+### B) Refactor to Tokens
+
+> Scan `:design:components` for raw color/size usage. Replace with `EventTheme` tokens.
+> If a token is missing, add it in `:design:tokens` and thread it through `:design:foundation`.
+
+### C) Add Reduced Motion Support
+
+> Introduce `LocalReducedMotion` with default `false`.
+> Update animated components to skip transitions when `true`.
+> Add a toggle in `:design:catalog` to demo reduced motion.
+
+### D) Add Density Support
+
+> Add `EventDensity { compact | comfortable }` local in foundation.
+> Update paddings/font sizes where appropriate.
+> Catalog: add a density switcher and reflect spacing changes.
+
+### E) Visual Regression Setup
+> Test matrix: light/dark/high‑contrast, EN/FR text, long lines, RTL.
+
+## 17) “Don’t” List
+
+* Don’t import `tokens` into feature modules; only through `EventTheme`.
+* Don’t hardcode spacing/radius/typography.
+* Don’t use magic numbers; if repeated twice, it’s probably a token.
+* Don’t add boolean explosion in APIs; prefer slots/enums/state objects.
+* Don’t block on image/IO in composition.
+
+## 18) On Failure / Missing Info
+
+If the design needs a value that isn’t in tokens or foundation:
+
+* Propose the token name and role.
+* Add it to `:design:tokens`, thread it via `:design:foundation`, then use it.
+---

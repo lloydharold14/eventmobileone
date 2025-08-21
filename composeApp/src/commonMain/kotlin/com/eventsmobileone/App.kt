@@ -1,6 +1,8 @@
 package com.eventsmobileone
 
 import androidx.compose.runtime.Composable
+import com.eventsmobileone.di.appModule
+import org.koin.compose.KoinApplication
 
 /**
  * Main App Entry Point
@@ -8,5 +10,9 @@ import androidx.compose.runtime.Composable
  */
 @Composable
 fun App() {
-    AppRoot()
+    KoinApplication(application = {
+        modules(appModule)
+    }) {
+        AppRoot()
+    }
 }

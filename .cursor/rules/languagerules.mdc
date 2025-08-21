@@ -1,0 +1,533 @@
+---
+alwaysApply: true
+---
+# Cursor AI Language Rules - French & English Support
+
+## 0) Language Strategy & Baseline
+
+* **Primary Languages**: French Canadian (fr-CA) and English (en-US, en-CA)
+* **Default Locale**: French Canadian (`fr-CA`) - matches user location in Montréal
+* **Fallback Chain**: `fr-CA` → `en-CA` → `en-US`
+* **Resource Library**: `org.jetbrains.compose.resources` for all strings
+* **Pluralization**: ICU MessageFormat for complex rules
+* **RTL Support**: Not required (French/English are LTR)
+
+**Absolute rule**: No hardcoded strings anywhere. Every user-facing text must be localized, even during development.
+
+---
+
+## 1) Resource Structure & Organization
+
+```
+:core:designsystem/src/commonMain/composeResources/
+├── strings/
+│   ├── strings.xml           (fr-CA - default)
+│   ├── strings-en-US.xml     (English US)
+│   └── strings-en-CA.xml     (English Canadian)
+├── drawable/                 (language-neutral images)
+└── font/                     (supports French accents)
+```
+
+**Key naming conventions:**
+```xml
+<!-- Feature-based grouping -->
+<string name="auth_login_title">Connexion</string>
+<string name="auth_login_button">Se connecter</string>
+<string name="auth_error_invalid_credentials">Identifiants invalides</string>
+
+<!-- Navigation -->
+<string name="nav_events">Événements</string>
+<string name="nav_profile">Profil</string>
+<string name="nav_search">Rechercher</string>
+
+<!-- Common actions -->
+<string name="action_save">Sauvegarder</string>
+<string name="action_cancel">Annuler</string>
+<string name="action_delete">Supprimer</string>
+<string name="action_share">Partager</string>
+
+<!-- States -->
+<string name="state_loading">Chargement…</string>
+<string name="state_error">Erreur</string>
+<string name="state_empty">Aucun élément</string>
+```
+
+---
+
+## 2) Implementation Guidelines
+
+### 2.1 String Usage in Composables
+
+```kotlin
+@Composable
+fun LoginScreen() {
+    var email by remember { mutableStateOf("") }
+    
+    Column {
+        Text(
+            text = stringResource(Res.string.auth_login_title),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text(stringResource(Res.string.auth_email_label)) },
+            placeholder = { Text(stringResource(Res.string.auth_email_placeholder)) }
+        )
+        
+        Button(
+            onClick = { /* login */ }
+        ) {
+            Text(stringResource(Res.string.auth_login_button))
+        }
+    }
+}
+```
+
+### 2.2 Pluralization with ICU MessageFormat
+
+```xml
+<!-- French Canadian (default) -->
+<string name="events_count">{count, plural, =0 {Aucun événement} =1 {1 événement} other {# événements}}</string>
+<string name="time_minutes_ago">{minutes, plural, =1 {Il y a 1 minute} other {Il y a # minutes}}</string>
+
+<!-- English US -->
+<string name="events_count">{count, plural, =0 {No events} =1 {1 event} other {# events}}</string>
+<string name="time_minutes_ago">{minutes, plural, =1 {1 minute ago} other {# minutes ago}}</string>
+```
+
+Usage:
+```kotlin
+@Composable
+fun EventCounter(count: Int) {
+    Text(
+        text = pluralStringResource(
+            Res.plurals.events_count,
+            count,
+            count
+        )
+    )
+}
+```
+
+### 2.3 Dynamic String Formatting
+
+```xml
+<!-- French -->
+<string name="welcome_user">Bonjour, %1$s!</string>
+<string name="event_date_time">%1$s à %2$s</string>
+<string name="price_format">%1$.2f $</string>
+
+<!-- English -->
+<string name="welcome_user">Hello, %1$s!</string>
+<string name="event_date_time">%1$s at %2$s</string>
+<string name="price_format">$%1$.2f</string>
+```
+
+Usage:
+```kotlin
+@Composable
+fun WelcomeMessage(userName: String) {
+    Text(
+        text = stringResource(Res.string.welcome_user, userName)
+    )
+}
+```
+
+---
+
+## 3) Locale Management & Detection
+
+### 3.1 Locale Provider Interface
+
+```kotlin
+// :core:ui/src/commonMain/
+interface LocaleProvider {
+    val currentLocale: StateFlow<AppLocale>
+    suspend fun setLocale(locale: AppLocale)
+    fun getAvailableLocales(): List<AppLocale>
+}
+
+@Immutable
+enum class AppLocale(
+    val code: String,
+    val displayName: String,
+    val isDefault: Boolean = false
+) {
+    FRENCH_CANADA("fr-CA", "Français (Canada)", true),
+    ENGLISH_US("en-US", "English (US)"),
+    ENGLISH_CANADA("en-CA", "English (Canada)")
+}
+```
+
+### 3.2 Platform Implementation
+
+```kotlin
+// androidMain
+actual class AndroidLocaleProvider : LocaleProvider {
+    private val _currentLocale = MutableStateFlow(detectSystemLocale())
+    override val currentLocale = _currentLocale.asStateFlow()
+    
+    private fun detectSystemLocale(): AppLocale {
+        val systemLocale = Locale.getDefault()
+        return when ("${systemLocale.language}-${systemLocale.country}") {
+            "fr-CA" -> AppLocale.FRENCH_CANADA
+            "en-US" -> AppLocale.ENGLISH_US
+            "en-CA" -> AppLocale.ENGLISH_CANADA
+            "fr" -> AppLocale.FRENCH_CANADA // Default French to Quebec
+            else -> AppLocale.FRENCH_CANADA // Default for Montréal
+        }
+    }
+}
+```
+
+---
+
+## 4) Date, Time & Number Formatting
+
+### 4.1 Formatted Data Classes
+
+```kotlin
+// :core:model/src/commonMain/
+@Immutable
+data class FormattedDateTime(
+    val date: String,           // "15 janvier 2025" or "January 15, 2025"
+    val time: String,           // "14h30" or "2:30 PM"  
+    val relative: String        // "Il y a 2 heures" or "2 hours ago"
+)
+
+@Immutable  
+data class FormattedPrice(
+    val amount: String,         // "29,99 $" or "$29.99"
+    val currency: String        // "CAD"
+)
+```
+
+### 4.2 Formatter Interface
+
+```kotlin
+interface DateTimeFormatter {
+    fun formatDate(instant: Instant, style: DateStyle = DateStyle.MEDIUM): String
+    fun formatTime(instant: Instant, style: TimeStyle = TimeStyle.SHORT): String  
+    fun formatRelative(instant: Instant): String
+    fun formatDateTime(instant: Instant): FormattedDateTime
+}
+
+interface NumberFormatter {
+    fun formatPrice(amount: Double, currency: String = "CAD"): FormattedPrice
+    fun formatPercent(value: Double): String
+    fun formatDecimal(value: Double, decimals: Int = 2): String
+}
+```
+
+### 4.3 Usage in ViewModels
+
+```kotlin
+class EventDetailViewModel(
+    private val dateFormatter: DateTimeFormatter,
+    private val numberFormatter: NumberFormatter
+) {
+    fun formatEventData(event: Event): EventUiState {
+        return EventUiState(
+            title = event.title,
+            dateTime = dateFormatter.formatDateTime(event.startTime),
+            price = numberFormatter.formatPrice(event.price),
+            description = event.description
+        )
+    }
+}
+```
+
+---
+
+## 5) Content & Copy Guidelines
+
+### 5.1 French Canadian Specifics
+- Use Quebec French terminology: "courriel" not "email", "clavardage" not "chat"
+- Currency: "29,99 $" (space before dollar sign)
+- Dates: "15 janvier 2025" (no capital on months)
+- Time: "14h30" (24-hour format preferred)
+- Formal tone: Use "vous" for user-facing text unless explicitly casual
+
+### 5.2 English Canadian Specifics  
+- Canadian spelling: "colour", "favourite", "centre"
+- Currency: "$29.99 CAD" when needed
+- Dates: "January 15, 2025" or "15/01/2025"
+- Time: "2:30 PM" (12-hour with AM/PM)
+
+### 5.3 Common Patterns
+
+```xml
+<!-- Error Messages (French) -->
+<string name="error_network">Problème de connexion. Veuillez réessayer.</string>
+<string name="error_server">Erreur du serveur. Veuillez réessayer plus tard.</string>
+<string name="error_validation_email">Adresse courriel invalide.</string>
+
+<!-- Error Messages (English) -->
+<string name="error_network">Connection problem. Please try again.</string>
+<string name="error_server">Server error. Please try again later.</string>
+<string name="error_validation_email">Invalid email address.</string>
+
+<!-- Loading States -->
+<string name="loading_events">Chargement des événements…</string>
+<string name="loading_profile">Chargement du profil…</string>
+```
+
+---
+
+## 6) Accessibility & Screen Readers
+
+### 6.1 Content Descriptions
+
+```xml
+<!-- French -->
+<string name="cd_profile_avatar">Photo de profil de %1$s</string>
+<string name="cd_event_favorite_add">Ajouter %1$s aux favoris</string>
+<string name="cd_event_favorite_remove">Retirer %1$s des favoris</string>
+<string name="cd_loading">Chargement en cours</string>
+
+<!-- English -->
+<string name="cd_profile_avatar">Profile picture of %1$s</string>
+<string name="cd_event_favorite_add">Add %1$s to favourites</string>
+<string name="cd_event_favorite_remove">Remove %1$s from favourites</string>
+<string name="cd_loading">Loading</string>
+```
+
+### 6.2 Implementation
+
+```kotlin
+@Composable
+fun EventCard(
+    event: Event,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.semantics { 
+            contentDescription = stringResource(
+                Res.string.cd_event_card, 
+                event.title, 
+                event.formattedDate
+            )
+        }
+    ) {
+        // Card content...
+        
+        IconButton(
+            onClick = onFavoriteClick,
+            modifier = Modifier.semantics {
+                contentDescription = stringResource(
+                    if (isFavorite) Res.string.cd_event_favorite_remove 
+                    else Res.string.cd_event_favorite_add,
+                    event.title
+                )
+            }
+        ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = null // Handled by button
+            )
+        }
+    }
+}
+```
+
+---
+
+## 7) Testing Localized Content
+
+### 7.1 String Resource Tests
+
+```kotlin
+// :core:testing/src/commonMain/
+class LocalizedStringTest {
+    
+    @Test
+    fun `all locales have required keys`() = runTest {
+        val requiredKeys = setOf(
+            "app_name",
+            "nav_events", 
+            "nav_profile",
+            "action_save",
+            "action_cancel"
+        )
+        
+        AppLocale.values().forEach { locale ->
+            val strings = getStringsForLocale(locale)
+            requiredKeys.forEach { key ->
+                assertNotNull(
+                    strings[key], 
+                    "Missing key '$key' for locale ${locale.code}"
+                )
+            }
+        }
+    }
+    
+    @Test
+    fun `french strings use correct typography`() {
+        val frenchStrings = getStringsForLocale(AppLocale.FRENCH_CANADA)
+        
+        // Check for proper French spacing before punctuation
+        frenchStrings.values.forEach { text ->
+            assertFalse(
+                text.contains("?") && !text.contains(" ?"),
+                "French text should have space before question mark: $text"
+            )
+        }
+    }
+}
+```
+
+### 7.2 UI Tests with Locale
+
+```kotlin
+@Test
+fun loginScreen_showsFrenchContent() {
+    composeTestRule.setContent {
+        CompositionLocalProvider(LocalLocale provides AppLocale.FRENCH_CANADA) {
+            LoginScreen()
+        }
+    }
+    
+    composeTestRule
+        .onNodeWithText("Connexion")
+        .assertIsDisplayed()
+        
+    composeTestRule
+        .onNodeWithText("Se connecter") 
+        .assertIsDisplayed()
+}
+```
+
+---
+
+## 8) Cursor AI Working Rules for Localization
+
+**When adding any user-facing text, Cursor must:**
+
+1. **Never use hardcoded strings** - always add to string resources first
+2. **Provide both French and English** - use Quebec French conventions for fr-CA
+3. **Add content descriptions** for interactive elements
+4. **Use proper formatting** for dates, numbers, and currency per locale
+5. **Test both languages** - add UI tests for critical flows in both locales
+6. **Follow naming conventions** - prefix with feature/context (e.g., `auth_`, `events_`)
+
+**When modifying existing text:**
+
+1. **Update all locale files** - maintain consistency across languages
+2. **Check for pluralization** - use ICU format for count-dependent strings  
+3. **Verify formatting** - ensure numbers/dates follow locale conventions
+4. **Update tests** - modify any hardcoded test assertions
+
+**When adding new features:**
+
+1. **Plan for localization** - design UI to accommodate text length differences
+2. **Extract all strings** - even temporary/debug text should be localized
+3. **Consider cultural differences** - colors, icons, layouts may need adaptation
+4. **Document new string keys** - add comments for context when needed
+
+---
+
+## 9) Development Workflow
+
+### 9.1 String Resource Workflow
+
+1. **Add to default** (`strings.xml` - French Canadian)
+2. **Translate to other locales** (English variants)
+3. **Use in code** with `stringResource()` or `pluralStringResource()`
+4. **Add tests** for both locales if UI-critical
+5. **Verify in app** - test language switching
+
+### 9.2 Translation Management
+
+```kotlin
+// Script to find missing translations
+fun findMissingTranslations() {
+    val defaultStrings = parseXml("strings.xml")
+    val englishStrings = parseXml("strings-en-US.xml")
+    
+    val missing = defaultStrings.keys - englishStrings.keys
+    if (missing.isNotEmpty()) {
+        println("Missing English translations: $missing")
+    }
+}
+```
+
+### 9.3 CI Validation
+
+- **Lint check**: No hardcoded strings in UI code
+- **Translation completeness**: All locales have same keys
+- **Format validation**: Proper ICU syntax for plurals
+- **Accessibility**: Content descriptions present for interactive elements
+
+---
+
+## 10) Performance Considerations
+
+- **Lazy loading**: Load only current locale strings
+- **Caching**: Cache formatted dates/numbers in ViewModels
+- **String deduplication**: Reuse common strings (`action_save`, `state_loading`)
+- **Font loading**: Preload fonts that support French accents
+
+---
+
+## 11) Platform-Specific Considerations
+
+### Android
+- Use `Locale.setDefault()` for app-wide locale changes
+- Handle configuration changes properly
+- Test with different system languages
+
+### iOS  
+- Bridge with `NSLocale` for system integration
+- Handle language changes from iOS Settings
+- Test with VoiceOver in both languages
+
+---
+
+## 12) String Templates for Cursor
+
+### Basic Feature Strings
+```xml
+<!-- Feature: Auth -->
+<string name="auth_title">Connexion</string>
+<string name="auth_email_label">Adresse courriel</string>
+<string name="auth_password_label">Mot de passe</string>
+<string name="auth_login_button">Se connecter</string>
+<string name="auth_signup_link">Créer un compte</string>
+<string name="auth_error_invalid">Identifiants invalides</string>
+
+<!-- Feature: Events -->
+<string name="events_title">Événements</string>
+<string name="events_search_hint">Rechercher un événement</string>
+<string name="events_filter_date">Filtrer par date</string>
+<string name="events_empty_state">Aucun événement trouvé</string>
+<string name="events_loading">Chargement des événements…</string>
+```
+
+### Error Message Template
+```xml
+<!-- Pattern: {feature}_{error_type}_{context} -->
+<string name="events_error_network">Impossible de charger les événements</string>
+<string name="events_error_network_retry">Réessayer</string>
+<string name="profile_error_save">Erreur lors de la sauvegarde</string>
+<string name="checkout_error_payment">Échec du paiement</string>
+```
+
+---
+
+## 13) Quality Checklist
+
+**Before committing any localized content:**
+
+- [ ] All user-facing strings are in resource files
+- [ ] French uses Quebec conventions (courriel, $ formatting)
+- [ ] English uses Canadian spelling where applicable  
+- [ ] Pluralization uses ICU MessageFormat
+- [ ] Content descriptions added for accessibility
+- [ ] Both locales tested in UI
+- [ ] String keys follow naming conventions
+- [ ] No hardcoded text remains in code
+- [ ] Formatting functions used for dates/numbers
+- [ ] Translation completeness verified

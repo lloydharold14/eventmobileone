@@ -1,6 +1,4 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -11,39 +9,37 @@ plugins {
 
 kotlin {
     androidTarget()
-    
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
+    iosArm64()
+    iosSimulatorArm64()
+    jvm()
     
     sourceSets {
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-        }
         commonMain.dependencies {
-            implementation(project(":core:ui"))
-            implementation(project(":core:designsystem"))
+            implementation(project(":core:model"))
             implementation(project(":core:data"))
             implementation(project(":core:domain"))
-            implementation(project(":feature:events"))
+            implementation(project(":core:ui"))
+            implementation(project(":core:designsystem"))
+            
+            implementation(libs.kotlinx.coroutines)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+        }
+        androidMain.dependencies {
+            implementation(compose.preview)
+        }
+        iosMain.dependencies {
+            // iOS-specific dependencies if needed
+        }
+        jvmMain.dependencies {
+            // Desktop-specific dependencies if needed
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -52,9 +48,9 @@ kotlin {
 }
 
 android {
-    namespace = "com.eventsmobileone.composeapp"
+    namespace = "com.eventsmobileone.feature.events"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
+    
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
@@ -65,6 +61,3 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
-
-
-

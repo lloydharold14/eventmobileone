@@ -31,5 +31,8 @@ dependencyResolutionManagement {
 include(":composeApp")
 include(":app-android")
 include(":core:model")
+include(":core:data")
+include(":core:domain")
 include(":core:ui")
 include(":core:designsystem")
+include(":feature:events")
