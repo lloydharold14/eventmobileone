@@ -14,6 +14,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(project(":composeApp"))
             implementation(project(":core:ui"))
             implementation(project(":core:designsystem"))
             implementation(libs.androidx.activity.compose)
