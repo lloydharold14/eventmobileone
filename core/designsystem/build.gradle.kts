@@ -14,6 +14,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines)
+            implementation(libs.kotlinx.datetime)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

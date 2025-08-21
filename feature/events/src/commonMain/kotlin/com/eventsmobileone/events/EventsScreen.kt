@@ -2,10 +2,9 @@ package com.eventsmobileone.events
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -129,11 +128,11 @@ private fun EventsHeader(
             
             // Filter button with badge
             Box {
-                IconButton(onClick = onFilterClick) {
-                    Icon(
-                        imageVector = Icons.Default.FilterList,
-                        contentDescription = "Filters",
-                        tint = MaterialTheme.colorScheme.onBackground
+                TextButton(onClick = onFilterClick) {
+                    Text(
+                        text = "Filters",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 
@@ -315,11 +314,11 @@ private fun FiltersSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(com.eventsmobileone.AvailabilityFilter.values()) { availability ->
+            items(com.eventsmobileone.AvailabilityFilter.values()) { filterAvailability ->
                 FilterChip(
-                    selected = this@FiltersSection.availability == availability,
-                    onClick = { onAvailabilityChanged(availability) },
-                    label = { Text(availability.displayName) },
+                    selected = availability == filterAvailability,
+                    onClick = { onAvailabilityChanged(filterAvailability) },
+                    label = { Text(filterAvailability.displayName) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF9C27B0),
                         selectedLabelColor = Color.White

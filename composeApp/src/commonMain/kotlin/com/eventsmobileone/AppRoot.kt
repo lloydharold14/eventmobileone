@@ -6,8 +6,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.eventsmobileone.events.EventsScreen
 import com.eventsmobileone.events.EventsViewModel
-import com.eventsmobileone.EventTheme
-import org.koin.compose.koinViewModel
+import com.eventsmobileone.AppTheme
+import com.eventsmobileone.repository.MockEventsRepository
+import com.eventsmobileone.usecase.GetCategoriesUseCase
+import com.eventsmobileone.usecase.GetEventsUseCase
 
 /**
  * Main App Root Component
@@ -15,8 +17,15 @@ import org.koin.compose.koinViewModel
  */
 @Composable
 fun AppRoot() {
-    EventTheme {
-        val viewModel: EventsViewModel = koinViewModel()
+    AppTheme {
+        val viewModel = EventsViewModel(
+            getCategoriesUseCase = GetCategoriesUseCase(
+                eventsRepository = MockEventsRepository()
+            ),
+            getEventsUseCase = GetEventsUseCase(
+                eventsRepository = MockEventsRepository()
+            )
+        )
         EventsScreen(viewModel = viewModel)
     }
 }
