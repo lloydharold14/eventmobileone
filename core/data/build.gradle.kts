@@ -11,6 +11,8 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:model"))
+            implementation(libs.kotlinx.coroutines)
             implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
@@ -20,7 +22,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.eventsmobileone.core.model"
+    namespace = "com.eventsmobileone.core.data"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     
     compileOptions {

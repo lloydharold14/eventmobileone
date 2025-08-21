@@ -30,6 +30,10 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(project(":core:ui"))
+            implementation(project(":core:designsystem"))
+            implementation(project(":core:data"))
+            implementation(project(":core:domain"))
+            implementation(project(":feature:events"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -38,6 +42,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
