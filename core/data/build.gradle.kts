@@ -12,6 +12,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:model"))
+            implementation(project(":core:ui"))
             implementation(libs.kotlinx.coroutines)
             implementation(libs.kotlinx.datetime)
         }

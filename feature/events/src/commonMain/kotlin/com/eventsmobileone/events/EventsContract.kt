@@ -21,7 +21,6 @@ data class EventsUiState(
     val availability: AvailabilityFilter = AvailabilityFilter.ALL,
     
     // Filter UI state
-    val showFilters: Boolean = false,
     val activeFiltersCount: Int = 0
 )
 
@@ -38,7 +37,8 @@ sealed interface EventsUiEvent {
     data class UpdateDateRange(val dateRange: DateRange) : EventsUiEvent
     data class UpdatePriceRange(val priceRange: PriceRangeFilter) : EventsUiEvent
     data class UpdateAvailability(val availability: AvailabilityFilter) : EventsUiEvent
-    data object ToggleFilters : EventsUiEvent
+    data object OpenFilterScreen : EventsUiEvent
+    data object OpenLocationSearch : EventsUiEvent
     data object ClearFilters : EventsUiEvent
     data class NavigateToEvent(val eventId: String) : EventsUiEvent
     data object ClearError : EventsUiEvent
@@ -49,5 +49,7 @@ sealed interface EventsUiEvent {
  */
 sealed interface EventsEffect {
     data class NavigateToEventDetail(val eventId: String) : EventsEffect
+    data object NavigateToFilterScreen : EventsEffect
+    data object NavigateToLocationSearch : EventsEffect
     data class ShowError(val message: String) : EventsEffect
 }

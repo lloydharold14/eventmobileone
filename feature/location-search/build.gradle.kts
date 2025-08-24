@@ -1,7 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -17,31 +13,26 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "LocationSearch"
             isStatic = true
         }
     }
     
     sourceSets {
         androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
         commonMain.dependencies {
-            implementation(project(":core:ui"))
-            implementation(project(":core:designsystem"))
-            implementation(project(":core:data"))
-            implementation(project(":core:domain"))
-            implementation(project(":core:model"))
-            implementation(project(":feature:events"))
-            implementation(project(":feature:filter"))
-            implementation(project(":feature:location-search"))
+            implementation(projects.core.domain)
+            implementation(projects.core.data)
+            implementation(projects.core.ui)
+            implementation(projects.core.designsystem)
+            implementation(projects.core.model)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.koin.core)
@@ -54,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.eventsmobileone.composeapp"
+    namespace = "com.eventsmobileone.locationsearch"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -67,6 +58,3 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
-
-
-

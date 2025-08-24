@@ -19,9 +19,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eventsmobileone.Event
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+
+/**
+ * EventCard Component that takes an Event object
+ * Displays event information with prominent image and modern design
+ */
+@Composable
+fun EventCard(
+    event: Event,
+    distanceDisplay: String? = null,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    EventCard(
+        title = event.title,
+        date = event.date,
+        location = distanceDisplay ?: event.location,
+        venue = event.venue,
+        priceText = event.priceRange.getDisplayText(),
+        availableTickets = event.availableTickets,
+        capacity = event.capacity,
+        organizer = event.organizer,
+        imageUrl = event.imageUrl,
+        isFeatured = event.isFeatured,
+        attendeeCount = 0, // TODO: Add attendee count to Event model
+        rating = 0f, // TODO: Add rating to Event model
+        modifier = modifier,
+        onClick = onClick
+    )
+}
 
 /**
  * Beautiful EventCard Component

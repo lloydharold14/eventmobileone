@@ -35,7 +35,8 @@ class EventsViewModel(
             is EventsUiEvent.UpdateDateRange -> updateDateRange(event.dateRange)
             is EventsUiEvent.UpdatePriceRange -> updatePriceRange(event.priceRange)
             is EventsUiEvent.UpdateAvailability -> updateAvailability(event.availability)
-            is EventsUiEvent.ToggleFilters -> toggleFilters()
+            is EventsUiEvent.OpenFilterScreen -> openFilterScreen()
+            is EventsUiEvent.OpenLocationSearch -> openLocationSearch()
             is EventsUiEvent.ClearFilters -> clearFilters()
             is EventsUiEvent.NavigateToEvent -> navigateToEvent(event.eventId)
             is EventsUiEvent.ClearError -> clearError()
@@ -79,7 +80,8 @@ class EventsViewModel(
                     _state.update { 
                         it.copy(
                             events = events,
-                            isLoading = false
+                            isLoading = false,
+                            activeFiltersCount = calculateActiveFiltersCount(it)
                         )
                     }
                 }
@@ -107,7 +109,8 @@ class EventsViewModel(
                     _state.update { 
                         it.copy(
                             events = events,
-                            isRefreshing = false
+                            isRefreshing = false,
+                            activeFiltersCount = calculateActiveFiltersCount(it)
                         )
                     }
                 }
@@ -153,8 +156,16 @@ class EventsViewModel(
         loadEvents()
     }
 
-    private fun toggleFilters() {
-        _state.update { it.copy(showFilters = !it.showFilters) }
+    private fun openFilterScreen() {
+        viewModelScope.launch {
+            _effect.emit(EventsEffect.NavigateToFilterScreen)
+        }
+    }
+    
+    private fun openLocationSearch() {
+        viewModelScope.launch {
+            _effect.emit(EventsEffect.NavigateToLocationSearch)
+        }
     }
 
     private fun clearFilters() {
@@ -166,7 +177,7 @@ class EventsViewModel(
                 dateRange = DateRange.ALL,
                 priceRange = PriceRangeFilter.ALL,
                 availability = AvailabilityFilter.ALL,
-                showFilters = false
+                activeFiltersCount = 0
             )
         }
         loadEvents()

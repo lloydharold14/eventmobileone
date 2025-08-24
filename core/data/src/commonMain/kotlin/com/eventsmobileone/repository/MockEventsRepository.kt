@@ -1,6 +1,7 @@
 package com.eventsmobileone.repository
 
 import com.eventsmobileone.*
+import com.eventsmobileone.repository.EventsRepository
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -194,8 +195,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Join us for the biggest music festival of the summer featuring top artists from around the world.",
                 categoryId = "music",
                 date = "2024-07-15T19:00:00Z",
-                location = "Central Park",
+                location = "Central Park, New York",
                 venue = "Central Park Bandshell",
+                coordinates = Coordinates(40.7829, -73.9654), // Central Park, NYC
                 priceRange = PriceRange(50.0, 150.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop",
@@ -211,8 +213,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Connect with entrepreneurs, investors, and tech leaders in this comprehensive startup conference.",
                 categoryId = "technology",
                 date = "2024-06-20T09:00:00Z",
-                location = "San Francisco",
+                location = "San Francisco, CA",
                 venue = "Moscone Center",
+                coordinates = Coordinates(37.7849, -122.4094), // Moscone Center, SF
                 priceRange = PriceRange(299.0, 599.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop",
@@ -228,8 +231,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Taste the best local cuisine and wines from regional producers.",
                 categoryId = "food",
                 date = "2024-08-10T12:00:00Z",
-                location = "Downtown Plaza",
+                location = "Downtown Plaza, Chicago",
                 venue = "City Square",
+                coordinates = Coordinates(41.8781, -87.6298), // Downtown Chicago
                 priceRange = PriceRange(25.0, 75.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
@@ -245,8 +249,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Annual city marathon with scenic routes and professional timing.",
                 categoryId = "sports",
                 date = "2024-09-22T07:00:00Z",
-                location = "City Center",
+                location = "City Center, Boston",
                 venue = "Starting Line - Main Street",
+                coordinates = Coordinates(42.3601, -71.0589), // Boston
                 priceRange = PriceRange(45.0, 45.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop",
@@ -262,8 +267,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Exclusive opening of contemporary art exhibition featuring local artists.",
                 categoryId = "art",
                 date = "2024-07-08T18:00:00Z",
-                location = "Modern Art Museum",
+                location = "Modern Art Museum, Los Angeles",
                 venue = "Main Gallery",
+                coordinates = Coordinates(34.0522, -118.2437), // Los Angeles
                 priceRange = PriceRange(15.0, 15.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop",
@@ -279,8 +285,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Professional networking event for business leaders and entrepreneurs.",
                 categoryId = "business",
                 date = "2024-06-25T19:00:00Z",
-                location = "Downtown Business District",
+                location = "Downtown Business District, Miami",
                 venue = "Grand Hotel Ballroom",
+                coordinates = Coordinates(25.7617, -80.1918), // Miami
                 priceRange = PriceRange(35.0, 35.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&h=600&fit=crop",
@@ -296,8 +303,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Weekend retreat focused on yoga, meditation, and holistic wellness.",
                 categoryId = "health",
                 date = "2024-08-03T08:00:00Z",
-                location = "Mountain Resort",
+                location = "Mountain Resort, Denver",
                 venue = "Wellness Center",
+                coordinates = Coordinates(39.7392, -104.9903), // Denver
                 priceRange = PriceRange(199.0, 399.0),
                 thumbnailUrl = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=600&fit=crop",
@@ -313,8 +321,9 @@ class MockEventsRepository : EventsRepository {
                 description = "Free outdoor concert featuring local bands and musicians.",
                 categoryId = "music",
                 date = "2024-07-20T16:00:00Z",
-                location = "Community Park",
+                location = "Community Park, Seattle",
                 venue = "Amphitheater",
+                coordinates = Coordinates(47.6062, -122.3321), // Seattle
                 priceRange = PriceRange(0.0, 0.0), // Free
                 thumbnailUrl = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
                 imageUrl = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop",

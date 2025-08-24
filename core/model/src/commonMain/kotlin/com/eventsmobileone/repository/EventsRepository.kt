@@ -6,6 +6,7 @@ import com.eventsmobileone.EventFilter
 
 /**
  * Repository interface for events data operations
+ * This is the shared interface that both domain and data layers can depend on
  */
 interface EventsRepository {
     suspend fun getCategories(): Result<List<EventCategory>>

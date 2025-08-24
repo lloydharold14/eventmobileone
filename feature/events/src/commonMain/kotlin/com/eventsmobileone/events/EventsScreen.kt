@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,6 +33,14 @@ fun EventsScreen(
                     // FIXME(eventMO-1009): Navigate to event detail - will be implemented with Decompose navigation
                     println("Navigate to event: ${effect.eventId}")
                 }
+                is EventsEffect.NavigateToFilterScreen -> {
+                    // FIXME(eventMO-1010): Navigate to filter screen - will be implemented with Decompose navigation
+                    println("Navigate to filter screen")
+                }
+                is EventsEffect.NavigateToLocationSearch -> {
+                    // FIXME(eventMO-1019): Navigate to location search - will be implemented with Decompose navigation
+                    println("Navigate to location search")
+                }
                 is EventsEffect.ShowError -> {
                     snackbarHostState.showSnackbar(
                         message = effect.message,
@@ -55,7 +64,8 @@ fun EventsScreen(
             EventsHeader(
                 searchQuery = state.searchQuery,
                 onSearchQueryChange = { viewModel.onEvent(EventsUiEvent.UpdateSearchQuery(it)) },
-                onFilterClick = { viewModel.onEvent(EventsUiEvent.ToggleFilters) },
+                onFilterClick = { viewModel.onEvent(EventsUiEvent.OpenFilterScreen) },
+                onLocationSearchClick = { viewModel.onEvent(EventsUiEvent.OpenLocationSearch) },
                 activeFiltersCount = state.activeFiltersCount,
                 onRefresh = { viewModel.onEvent(EventsUiEvent.RefreshEvents) }
             )
@@ -68,21 +78,6 @@ fun EventsScreen(
                     onCategorySelected = { categoryId ->
                         viewModel.onEvent(EventsUiEvent.SelectCategory(categoryId))
                     }
-                )
-            }
-            
-            // Filters section
-            if (state.showFilters) {
-                FiltersSection(
-                    dateRange = state.dateRange,
-                    priceRange = state.priceRange,
-                    availability = state.availability,
-                    sortBy = state.sortBy,
-                    onDateRangeChanged = { viewModel.onEvent(EventsUiEvent.UpdateDateRange(it)) },
-                    onPriceRangeChanged = { viewModel.onEvent(EventsUiEvent.UpdatePriceRange(it)) },
-                    onAvailabilityChanged = { viewModel.onEvent(EventsUiEvent.UpdateAvailability(it)) },
-                    onSortChanged = { viewModel.onEvent(EventsUiEvent.UpdateSortOption(it)) },
-                    onClearFilters = { viewModel.onEvent(EventsUiEvent.ClearFilters) }
                 )
             }
             
@@ -107,6 +102,7 @@ private fun EventsHeader(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onFilterClick: () -> Unit,
+    onLocationSearchClick: () -> Unit,
     activeFiltersCount: Int,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
@@ -125,30 +121,6 @@ private fun EventsHeader(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            
-            // Filter button with badge
-            Box {
-                TextButton(onClick = onFilterClick) {
-                    Text(
-                        text = "Filters",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                
-                // Badge for active filters
-                if (activeFiltersCount > 0) {
-                    Badge(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        containerColor = Color(0xFF9C27B0)
-                    ) {
-                        Text(
-                            text = activeFiltersCount.toString(),
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                }
-            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -156,8 +128,25 @@ private fun EventsHeader(
         EventSearchBar(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
-            placeholder = "Search events..."
+            placeholder = "Search events...",
+            onFilterClick = onFilterClick,
+            activeFiltersCount = activeFiltersCount
         )
+        
+        // Location search button
+        OutlinedButton(
+            onClick = onLocationSearchClick,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Text(
+                text = "📍 Search by Location",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
 
@@ -205,146 +194,6 @@ private fun CategoriesSection(
                             Text(category.name)
                         }
                     },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF9C27B0),
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FiltersSection(
-    dateRange: com.eventsmobileone.DateRange,
-    priceRange: com.eventsmobileone.PriceRangeFilter,
-    availability: com.eventsmobileone.AvailabilityFilter,
-    sortBy: com.eventsmobileone.SortOption,
-    onDateRangeChanged: (com.eventsmobileone.DateRange) -> Unit,
-    onPriceRangeChanged: (com.eventsmobileone.PriceRangeFilter) -> Unit,
-    onAvailabilityChanged: (com.eventsmobileone.AvailabilityFilter) -> Unit,
-    onSortChanged: (com.eventsmobileone.SortOption) -> Unit,
-    onClearFilters: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Filters",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
-            TextButton(onClick = onClearFilters) {
-                Text("Clear All")
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Date Range Filter
-        Text(
-            text = "Date",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(com.eventsmobileone.DateRange.values()) { range ->
-                FilterChip(
-                    selected = dateRange == range,
-                    onClick = { onDateRangeChanged(range) },
-                    label = { Text(range.displayName) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF9C27B0),
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Price Range Filter
-        Text(
-            text = "Price",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(com.eventsmobileone.PriceRangeFilter.values()) { range ->
-                FilterChip(
-                    selected = priceRange == range,
-                    onClick = { onPriceRangeChanged(range) },
-                    label = { Text(range.displayName) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF9C27B0),
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Availability Filter
-        Text(
-            text = "Availability",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(com.eventsmobileone.AvailabilityFilter.values()) { filterAvailability ->
-                FilterChip(
-                    selected = availability == filterAvailability,
-                    onClick = { onAvailabilityChanged(filterAvailability) },
-                    label = { Text(filterAvailability.displayName) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF9C27B0),
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Sort Options
-        Text(
-            text = "Sort By",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(com.eventsmobileone.SortOption.values()) { sortOption ->
-                FilterChip(
-                    selected = sortBy == sortOption,
-                    onClick = { onSortChanged(sortOption) },
-                    label = { Text(sortOption.displayName) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF9C27B0),
                         selectedLabelColor = Color.White
