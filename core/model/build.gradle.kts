@@ -7,11 +7,12 @@ kotlin {
     androidTarget()
     iosArm64()
     iosSimulatorArm64()
-    jvm("desktop")
     
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization)
+            implementation(libs.kotlinx.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

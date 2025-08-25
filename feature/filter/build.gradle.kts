@@ -12,7 +12,6 @@ kotlin {
     androidTarget()
     iosArm64()
     iosSimulatorArm64()
-    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -32,6 +31,7 @@ kotlin {
                 
                 // Core modules
                 implementation(projects.core.model)
+                implementation(projects.core.domain)
                 implementation(projects.core.designsystem)
                 implementation(projects.core.ui)
             }
@@ -41,12 +41,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.lifecycle.viewmodelCompose)
                 implementation(libs.androidx.lifecycle.runtimeCompose)
-            }
-        }
-        
-        val desktopMain by getting {
-            dependencies {
-                implementation(compose.desktop.currentOs)
+                implementation(libs.androidx.lifecycle.viewmodel)
             }
         }
         

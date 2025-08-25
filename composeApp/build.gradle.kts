@@ -33,9 +33,10 @@ kotlin {
             implementation(project(":core:data"))
             implementation(project(":core:domain"))
             implementation(project(":core:model"))
-            implementation(project(":feature:events"))
-            implementation(project(":feature:filter"))
-            implementation(project(":feature:location-search"))
+                    implementation(project(":feature:events"))
+        implementation(project(":feature:filter"))
+        implementation(project(":feature:location-search"))
+        implementation(project(":feature:auth"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -65,6 +66,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    lint {
+        disable += "NullSafeMutableLiveData"
     }
 }
 

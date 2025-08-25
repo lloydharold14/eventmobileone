@@ -312,16 +312,16 @@ private fun EventsList(
                     ) { event ->
                         EventCard(
                             title = event.title,
-                            date = event.date,
-                            location = event.location,
-                            venue = event.venue,
-                            priceText = event.priceRange.getDisplayText(),
-                            availableTickets = event.availableTickets,
-                            capacity = event.capacity,
-                            organizer = event.organizer,
-                            imageUrl = event.thumbnailUrl,
-                            isFeatured = event.isFeatured,
-                            attendeeCount = (event.capacity - event.availableTickets) / 100,
+                            date = event.startDate,
+                            location = "${event.location.address}, ${event.location.city}",
+                            venue = event.location.address,
+                            priceText = "${event.pricing.displayCurrency} ${event.pricing.displayAmount}",
+                            availableTickets = event.currentAttendees,
+                            capacity = event.maxAttendees,
+                            organizer = event.organizer.name,
+                            imageUrl = event.images.firstOrNull(),
+                            isFeatured = false, // TODO: Add featured flag to Event model
+                            attendeeCount = event.currentAttendees,
                             rating = 4.5f,
                             onClick = { onEventClick(event.id) }
                         )

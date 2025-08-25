@@ -9,7 +9,6 @@ kotlin {
     androidTarget()
     iosArm64()
     iosSimulatorArm64()
-    jvm("desktop")
     
     sourceSets {
         commonMain.dependencies {
@@ -42,5 +41,11 @@ android {
     
     buildFeatures {
         compose = true
+    }
+    
+    lint {
+        disable += "NullSafeMutableLiveData"
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 }

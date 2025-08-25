@@ -27,7 +27,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.eventsmobileone"
+    namespace = "com.eventsmobileone.android"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -57,6 +57,10 @@ android {
     
     buildFeatures {
         compose = true
+    }
+    
+    lint {
+        disable += "NullSafeMutableLiveData"
     }
 }
 

@@ -37,16 +37,16 @@ fun EventCard(
 ) {
     EventCard(
         title = event.title,
-        date = event.date,
-        location = distanceDisplay ?: event.location,
-        venue = event.venue,
-        priceText = event.priceRange.getDisplayText(),
-        availableTickets = event.availableTickets,
-        capacity = event.capacity,
-        organizer = event.organizer,
-        imageUrl = event.imageUrl,
-        isFeatured = event.isFeatured,
-        attendeeCount = 0, // TODO: Add attendee count to Event model
+        date = event.startDate,
+        location = distanceDisplay ?: "${event.location.address}, ${event.location.city}",
+        venue = event.location.address,
+        priceText = "${event.pricing.displayCurrency} ${event.pricing.displayAmount}",
+        availableTickets = event.currentAttendees,
+        capacity = event.maxAttendees,
+        organizer = event.organizer.name,
+        imageUrl = event.images.firstOrNull(),
+        isFeatured = false, // TODO: Add featured flag to Event model
+        attendeeCount = event.currentAttendees,
         rating = 0f, // TODO: Add rating to Event model
         modifier = modifier,
         onClick = onClick

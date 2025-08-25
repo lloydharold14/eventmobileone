@@ -4,24 +4,91 @@ import kotlinx.datetime.Instant
 
 /**
  * Event model representing an event in the system
+ * Updated to match the real API structure
  */
 data class Event(
     val id: String,
     val title: String,
     val description: String,
-    val categoryId: String,
-    val date: String, // ISO 8601 format
-    val location: String,
-    val venue: String,
-    val coordinates: Coordinates?, // Added for location-based search
-    val priceRange: PriceRange,
-    val thumbnailUrl: String?,
-    val imageUrl: String?,
-    val organizer: String,
-    val capacity: Int,
-    val availableTickets: Int,
+    val localizedContent: Map<String, LocalizedContent>? = null,
+    val startDate: String, // ISO 8601 format
+    val endDate: String, // ISO 8601 format
+    val location: EventLocation,
+    val organizer: EventOrganizer,
+    val category: String,
+    val pricing: EventPricing,
+    val images: List<String>,
+    val status: String,
+    val maxAttendees: Int,
+    val currentAttendees: Int,
     val tags: List<String>,
-    val isFeatured: Boolean = false
+    val features: List<String>,
+    val compliance: EventCompliance? = null
+)
+
+/**
+ * Localized content for different languages
+ */
+data class LocalizedContent(
+    val title: String,
+    val description: String
+)
+
+/**
+ * Event location with detailed information
+ */
+data class EventLocation(
+    val address: String,
+    val city: String,
+    val province: String,
+    val country: String,
+    val coordinates: Coordinates?
+)
+
+/**
+ * Event organizer information
+ */
+data class EventOrganizer(
+    val id: String,
+    val name: String,
+    val email: String
+)
+
+/**
+ * Event pricing with multi-currency support
+ */
+data class EventPricing(
+    val baseCurrency: String,
+    val baseAmount: Double,
+    val displayCurrency: String,
+    val displayAmount: Double,
+    val exchangeRate: Double,
+    val availableCurrencies: Map<String, CurrencyInfo>
+)
+
+/**
+ * Currency information
+ */
+data class CurrencyInfo(
+    val amount: Double,
+    val formatted: String
+)
+
+/**
+ * Event compliance information
+ */
+data class EventCompliance(
+    val taxInformation: Map<String, TaxInfo>? = null
+)
+
+/**
+ * Tax information
+ */
+data class TaxInfo(
+    val taxRate: Double,
+    val taxType: String,
+    val taxAmount: Double,
+    val currency: String
 )
 
 /**
@@ -89,7 +156,7 @@ data class EventWithDistance(
 ) {
     fun getDistanceDisplay(): String {
         return when {
-            distanceMiles == null -> event.location
+            distanceMiles == null -> "${event.location.address}, ${event.location.city}"
             distanceMiles < 1.0 -> "${(distanceMiles * 5280).toInt()} ft away"
             distanceMiles < 10.0 -> "${(distanceMiles * 10).toInt() / 10.0} miles away"
             else -> "${distanceMiles.toInt()} miles away"

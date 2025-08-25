@@ -49,10 +49,10 @@ class SearchEventsByLocationUseCase(
             // Filter events by distance and add distance information
             val eventsWithDistance = allEvents
                 .filter { event ->
-                    event.coordinates != null
+                    event.location.coordinates != null
                 }
                 .map { event ->
-                    val distance = event.coordinates!!.distanceToMiles(searchCoordinates)
+                    val distance = event.location.coordinates!!.distanceToMiles(searchCoordinates)
                     EventWithDistance(event, distance)
                 }
                 .filter { eventWithDistance ->
