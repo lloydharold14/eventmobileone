@@ -1,11 +1,13 @@
 package com.eventsmobileone
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 /**
  * User model representing an attendee in the system
  * Updated to match the backend API structure
  */
+@Serializable
 data class User(
     val id: String,
     val email: String,
@@ -27,6 +29,7 @@ data class User(
 /**
  * User roles in the system
  */
+@Serializable
 enum class UserRole {
     ATTENDEE,
     ORGANIZER,
@@ -36,6 +39,7 @@ enum class UserRole {
 /**
  * User preferences with localization support
  */
+@Serializable
 data class UserPreferences(
     val language: String = "en-CA",
     val currency: String = "CAD",
@@ -50,6 +54,7 @@ data class UserPreferences(
 /**
  * Privacy settings for user profile
  */
+@Serializable
 data class PrivacySettings(
     val profileVisibility: String = "public",
     val showEmail: Boolean = false,
@@ -60,6 +65,7 @@ data class PrivacySettings(
 /**
  * User address information
  */
+@Serializable
 data class UserAddress(
     val street: String,
     val city: String,
@@ -72,6 +78,7 @@ data class UserAddress(
  * Authentication request for registration
  * Updated to match backend API structure
  */
+@Serializable
 data class AuthRequest(
     val email: String,
     val username: String, // Added to match backend API
@@ -87,6 +94,7 @@ data class AuthRequest(
 /**
  * Authentication credentials for login
  */
+@Serializable
 data class AuthCredentials(
     val email: String,
     val password: String
@@ -95,6 +103,7 @@ data class AuthCredentials(
 /**
  * Authentication response from the API
  */
+@Serializable
 data class AuthResponse(
     val success: Boolean,
     val data: AuthData? = null,
@@ -105,6 +114,7 @@ data class AuthResponse(
 /**
  * Authentication data containing user and tokens
  */
+@Serializable
 data class AuthData(
     val accessToken: String,
     val refreshToken: String,
@@ -116,6 +126,7 @@ data class AuthData(
 /**
  * API authentication error
  */
+@Serializable
 data class ApiAuthError(
     val code: String,
     val message: String,
@@ -126,6 +137,7 @@ data class ApiAuthError(
 /**
  * Validation detail for API errors
  */
+@Serializable
 data class ValidationDetail(
     val message: String,
     val path: List<String>? = null,
@@ -145,6 +157,7 @@ data class OAuthRequest(
 /**
  * OAuth provider types
  */
+@Serializable
 enum class OAuthProvider {
     GOOGLE,
     APPLE,
@@ -155,6 +168,7 @@ enum class OAuthProvider {
 /**
  * OAuth user data
  */
+@Serializable
 data class OAuthUserData(
     val email: String,
     val firstName: String,
@@ -165,6 +179,7 @@ data class OAuthUserData(
 /**
  * JWT tokens for authentication
  */
+@Serializable
 data class JwtTokens(
     val accessToken: String,
     val refreshToken: String,
@@ -190,6 +205,7 @@ data class JwtTokens(
 /**
  * Update user profile request
  */
+@Serializable
 data class UpdateUserProfileRequest(
     val firstName: String? = null,
     val lastName: String? = null,

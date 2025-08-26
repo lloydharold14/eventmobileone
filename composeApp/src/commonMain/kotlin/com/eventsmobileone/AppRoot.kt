@@ -51,7 +51,7 @@ fun AppRoot() {
         val dispatcherProvider = remember { createDispatcherProvider() }
         val scope = rememberCoroutineScope()
         
-                       // Use real API repositories
+                       // Use real API repositories (from Koin)
                val authApiClient = remember { AuthApiClientImpl() }
                val eventsApiClient = remember { EventsApiClientImpl() }
                val secureStorage = remember { MockSecureStorage() }

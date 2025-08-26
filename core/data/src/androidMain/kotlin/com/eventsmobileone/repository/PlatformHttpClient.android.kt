@@ -9,10 +9,13 @@ import io.ktor.serialization.kotlinx.json.*
 actual class PlatformHttpClient {
     actual val client = HttpClient(OkHttp) {
         install(ContentNegotiation) {
-            json()
+            json(kotlinx.serialization.json.Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+            })
         }
         install(Logging) {
-            level = LogLevel.INFO
+            level = LogLevel.ALL
         }
     }
 }

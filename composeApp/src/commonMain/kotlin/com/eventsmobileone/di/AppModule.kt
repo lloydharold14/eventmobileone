@@ -17,11 +17,7 @@ val appModule = module {
     // Mock services for testing
     single<com.eventsmobileone.LocationService> { MockLocationService() }
     
-    // Authentication dependencies
-    single<com.eventsmobileone.repository.AuthApiClient> { 
-        com.eventsmobileone.repository.AuthApiClientImpl() 
-    }
-    
+    // Authentication dependencies (provided by dataModule)
     single<com.eventsmobileone.repository.SecureStorage> { 
         com.eventsmobileone.repository.MockSecureStorage() 
     }

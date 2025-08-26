@@ -15,6 +15,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import io.ktor.client.statement.bodyAsText
 
 interface AuthApiClient {
     suspend fun signIn(email: String, password: String): Result<AuthResponse>
@@ -45,21 +46,40 @@ class AuthApiClientImpl(
     
     override suspend fun signIn(email: String, password: String): Result<AuthResponse> {
         return try {
+            println("DEBUG: Attempting sign in for email: $email")
+            println("DEBUG: Using base URL: $baseUrl")
+            
+            val requestBody = mapOf(
+                "email" to email,
+                "password" to password
+            )
+            println("DEBUG: Request body: $requestBody")
+            
             val response = httpClient.post("$baseUrl/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(mapOf(
-                    "email" to email,
-                    "password" to password
-                ))
+                setBody(requestBody)
             }
+            
+            println("DEBUG: Response status: ${response.status}")
+            println("DEBUG: Response body: ${response.bodyAsText()}")
             
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    val authResponse = response.body<AuthResponse>()
-                    if (authResponse.success) {
-                        Result.success(authResponse)
-                    } else {
-                        Result.failure(handleAuthError(authResponse.error))
+                    try {
+                        val authResponse = response.body<AuthResponse>()
+                        println("DEBUG: Parsed auth response: $authResponse")
+                        if (authResponse.success) {
+                            Result.success(authResponse)
+                        } else {
+                            println("DEBUG: Auth response indicates failure: ${authResponse.error}")
+                            Result.failure(handleAuthError(authResponse.error))
+                        }
+                    } catch (e: Exception) {
+                        println("DEBUG: Error parsing response: ${e.message}")
+                        Result.failure(NetworkError.ClientError(
+                            statusCode = response.status.value,
+                            userFriendlyMessage = "Failed to parse response: ${e.message}"
+                        ))
                     }
                 }
                 HttpStatusCode.Unauthorized -> {
