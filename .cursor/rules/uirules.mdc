@@ -1,0 +1,144 @@
+---
+description:
+globs: true
+alwaysApply: true
+---
+{
+  "name": "Compose Multiplatform Reactive UI Rules",
+  "description": "Best practices for reactive UI with Jetpack Compose Multiplatform and enforced Design System",
+  "rules": [
+    {
+      "pattern": "mutableStateOf\\(",
+      "error": "Do not expose or use mutableStateOf for app-wide state. Use StateFlow in ViewModel instead."
+    },
+    {
+      "pattern": "MutableStateFlow<",
+      "error": "Do not expose MutableStateFlow. Expose StateFlow instead."
+    },
+    {
+      "pattern": "GlobalScope\\.",
+      "error": "Avoid GlobalScope. Use viewModelScope or a structured CoroutineScope."
+    },
+    {
+      "pattern": "rememberCoroutineScope\\(",
+      "warn": "Avoid rememberCoroutineScope inside Composables. Prefer ViewModel-managed coroutines."
+    },
+    {
+      "pattern": "android\\.",
+      "error": "Do not import android.* APIs in shared multiplatform modules."
+    },
+    {
+      "pattern": "ios\\.",
+      "error": "Do not import ios.* APIs in shared multiplatform modules."
+    },
+    {
+      "pattern": "collect\\s*\\{",
+      "warn": "Do not collect Flow directly in Composable. Use collectAsStateWithLifecycle() or equivalent."
+    },
+    {
+      "pattern": "LaunchedEffect\\([^)]*\\)\\s*\\{",
+      "warn": "Ensure LaunchedEffect has a stable key to avoid recompositions triggering side-effects repeatedly."
+    },
+    {
+      "pattern": "fun .*\\(@Composable.*\\).*\\{[^}]*\\bif\\s*\\(",
+      "warn": "Avoid placing branching logic/business rules inside Composables. Move to ViewModel."
+    },
+    {
+      "pattern": "\\b[0-9]+\\.(dp|sp)\\b",
+      "error": "Do not use raw dp/sp values. Use AppSpacing, AppTypography, AppIconSize, or AppRadius from the design system."
+    },
+    {
+      "pattern": "Color\\(",
+      "error": "Do not use raw Color values. Use AppColors from the design system."
+    },
+    {
+      "pattern": "elevation\\s*=\\s*[0-9]+\\.dp",
+      "error": "Do not use raw elevation values. Use AppElevation from the design system."
+    },
+    {
+      "pattern": "(tween|animate.*)\\(.*[0-9]+\\)",
+      "error": "Do not hardcode animation durations. Use AppAnimation constants."
+    },
+    {
+      "pattern": ".*",
+      "hint": "Follow Clean Architecture: UI -> ViewModel -> Domain -> Data. Keep layers separated."
+    }
+  ]
+}
+
+1. Spacing (dp)
+import androidx.compose.ui.unit.dp
+
+object AppSpacing {
+    val xxs = 2.dp
+    val xs = 4.dp
+    val sm = 8.dp
+    val md = 16.dp
+    val lg = 24.dp
+    val xl = 32.dp
+    val xxl = 48.dp
+}
+
+2. Typography (sp)
+import androidx.compose.ui.unit.sp
+
+object AppTypography {
+    val caption = 12.sp
+    val body = 14.sp
+    val bodyLarge = 16.sp
+    val title = 20.sp
+    val headline = 24.sp
+    val display = 32.sp
+}
+
+3. Icon Sizes
+import androidx.compose.ui.unit.dp
+
+object AppIconSize {
+    val sm = 16.dp
+    val md = 24.dp
+    val lg = 32.dp
+    val xl = 48.dp
+}
+
+4. Corner Radius
+import androidx.compose.ui.unit.dp
+
+object AppRadius {
+    val sm = 4.dp
+    val md = 8.dp
+    val lg = 16.dp
+    val xl = 24.dp
+}
+
+5. Colors
+import androidx.compose.ui.graphics.Color
+
+object AppColors {
+    val primary = Color(0xFF6200EE)
+    val primaryVariant = Color(0xFF3700B3)
+    val secondary = Color(0xFF03DAC6)
+    val background = Color(0xFFFFFFFF)
+    val surface = Color(0xFFF2F2F2)
+    val error = Color(0xFFB00020)
+    val textPrimary = Color(0xFF000000)
+    val textSecondary = Color(0xFF666666)
+}
+
+6. Elevation
+import androidx.compose.ui.unit.dp
+
+object AppElevation {
+    val none = 0.dp
+    val sm = 2.dp
+    val md = 4.dp
+    val lg = 8.dp
+    val xl = 16.dp
+}
+
+7. Animation Durations
+object AppAnimation {
+    const val fast = 150
+    const val normal = 300
+    const val slow = 600
+}

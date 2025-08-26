@@ -1,98 +1,160 @@
 package com.eventsmobileone
 
-import kotlinx.serialization.Serializable
 import kotlinx.datetime.Instant
 
-// User authentication models
-@Serializable
+/**
+ * User model representing an attendee in the system
+ * Updated to match the backend API structure
+ */
 data class User(
     val id: String,
     val email: String,
+    val username: String, // Added to match backend API
     val firstName: String,
     val lastName: String,
     val phone: String? = null,
     val role: UserRole = UserRole.ATTENDEE,
     val emailVerified: Boolean = false,
+    val phoneVerified: Boolean = false,
     val profilePicture: String? = null,
-    val preferences: UserPreferences? = null,
-    val createdAt: Instant? = null,
-    val updatedAt: Instant? = null
-) {
-    val fullName: String get() = "$firstName $lastName"
-    val displayName: String get() = if (firstName.isNotBlank()) fullName else email
-}
+    val preferences: UserPreferences = UserPreferences(),
+    val address: UserAddress? = null,
+    val status: String = "active", // Added to match backend API
+    val createdAt: String? = null, // ISO 8601 format
+    val updatedAt: String? = null // ISO 8601 format
+)
 
-@Serializable
+/**
+ * User roles in the system
+ */
 enum class UserRole {
     ATTENDEE,
     ORGANIZER,
     ADMIN
 }
 
-@Serializable
+/**
+ * User preferences with localization support
+ */
 data class UserPreferences(
-    val notifications: Boolean = true,
-    val newsletter: Boolean = false,
-    val locationSharing: Boolean = false,
-    val socialFeatures: Boolean = true
+    val language: String = "en-CA",
+    val currency: String = "CAD",
+    val timezone: String = "America/Toronto",
+    val emailNotifications: Boolean = true,
+    val smsNotifications: Boolean = false,
+    val pushNotifications: Boolean = true,
+    val marketingEmails: Boolean = false,
+    val privacySettings: PrivacySettings = PrivacySettings()
 )
 
-// Authentication models
-@Serializable
+/**
+ * Privacy settings for user profile
+ */
+data class PrivacySettings(
+    val profileVisibility: String = "public",
+    val showEmail: Boolean = false,
+    val showPhone: Boolean = false,
+    val allowDirectMessages: Boolean = true
+)
+
+/**
+ * User address information
+ */
+data class UserAddress(
+    val street: String,
+    val city: String,
+    val state: String,
+    val country: String,
+    val postalCode: String
+)
+
+/**
+ * Authentication request for registration
+ * Updated to match backend API structure
+ */
+data class AuthRequest(
+    val email: String,
+    val username: String, // Added to match backend API
+    val password: String,
+    val firstName: String,
+    val lastName: String,
+    val phone: String? = null,
+    val role: UserRole = UserRole.ATTENDEE,
+    val acceptTerms: Boolean = true,
+    val marketingConsent: Boolean = false
+)
+
+/**
+ * Authentication credentials for login
+ */
 data class AuthCredentials(
     val email: String,
     val password: String
 )
 
-@Serializable
-data class AuthRequest(
-    val email: String,
-    val password: String,
-    val firstName: String? = null,
-    val lastName: String? = null,
-    val phone: String? = null,
-    val role: UserRole = UserRole.ATTENDEE,
-    val acceptTerms: Boolean = true
-)
-
-@Serializable
+/**
+ * Authentication response from the API
+ */
 data class AuthResponse(
     val success: Boolean,
     val data: AuthData? = null,
-    val error: ApiAuthError? = null
+    val error: ApiAuthError? = null,
+    val timestamp: String? = null
 )
 
-@Serializable
+/**
+ * Authentication data containing user and tokens
+ */
 data class AuthData(
     val accessToken: String,
     val refreshToken: String,
     val expiresIn: Long,
-    val user: User
+    val user: User,
+    val message: String? = null
 )
 
-@Serializable
+/**
+ * API authentication error
+ */
 data class ApiAuthError(
     val code: String,
     val message: String,
-    val details: Map<String, String>? = null
+    val details: List<ValidationDetail>? = null,
+    val timestamp: String? = null
 )
 
-// OAuth models
-@Serializable
+/**
+ * Validation detail for API errors
+ */
+data class ValidationDetail(
+    val message: String,
+    val path: List<String>? = null,
+    val type: String? = null,
+    val context: Map<String, Any>? = null
+)
+
+/**
+ * OAuth request for social login
+ */
 data class OAuthRequest(
     val provider: OAuthProvider,
     val accessToken: String,
     val userData: OAuthUserData
 )
 
-@Serializable
+/**
+ * OAuth provider types
+ */
 enum class OAuthProvider {
     GOOGLE,
+    APPLE,
     FACEBOOK,
-    APPLE
+    TWITTER
 }
 
-@Serializable
+/**
+ * OAuth user data
+ */
 data class OAuthUserData(
     val email: String,
     val firstName: String,
@@ -100,22 +162,23 @@ data class OAuthUserData(
     val picture: String? = null
 )
 
-// JWT Token management
-@Serializable
+/**
+ * JWT tokens for authentication
+ */
 data class JwtTokens(
     val accessToken: String,
     val refreshToken: String,
     val expiresIn: Long,
-    val issuedAt: Instant
+    val issuedAt: kotlinx.datetime.Instant = kotlinx.datetime.Clock.System.now()
 ) {
-    fun isExpired(currentTime: Instant): Boolean {
+    fun isExpired(currentTime: kotlinx.datetime.Instant): Boolean {
         // Simple expiration check - tokens expire after expiresIn seconds
         val expirationTimeMillis = issuedAt.toEpochMilliseconds() + (expiresIn * 1000)
         val currentTimeMillis = currentTime.toEpochMilliseconds()
         return currentTimeMillis > expirationTimeMillis
     }
     
-    fun willExpireSoon(currentTime: Instant, withinMinutes: Long = 5): Boolean {
+    fun willExpireSoon(currentTime: kotlinx.datetime.Instant, withinMinutes: Long = 5): Boolean {
         // Simple expiration warning check
         val expirationTimeMillis = issuedAt.toEpochMilliseconds() + (expiresIn * 1000)
         val warningTimeMillis = expirationTimeMillis - (withinMinutes * 60 * 1000)
@@ -124,73 +187,86 @@ data class JwtTokens(
     }
 }
 
-// User session state
-sealed class UserSessionState {
-    object Loading : UserSessionState()
-    object Unauthenticated : UserSessionState()
-    data class Authenticated(
-        val user: User,
-        val tokens: JwtTokens
-    ) : UserSessionState()
-    data class Error(val message: String) : UserSessionState()
-}
-
-// Authentication UI state
-@Serializable
-data class AuthUiState(
-    val isLoading: Boolean = false,
-    val user: User? = null,
-    val error: AppError? = null,
-    val isAuthenticated: Boolean = false,
-    val isOnboardingComplete: Boolean = false
-)
-
-// Authentication events
-sealed interface AuthUiEvent {
-    data class SignIn(val email: String, val password: String) : AuthUiEvent
-    data class SignUp(val request: AuthRequest) : AuthUiEvent
-    data class SignInWithOAuth(val provider: OAuthProvider, val accessToken: String, val userData: OAuthUserData) : AuthUiEvent
-    data class ForgotPassword(val email: String) : AuthUiEvent
-    data object SignOut : AuthUiEvent
-    data object RefreshSession : AuthUiEvent
-    data object ClearError : AuthUiEvent
-}
-
-// Authentication effects
-sealed interface AuthEffect {
-    data class NavigateToHome(val user: User) : AuthEffect
-    data class NavigateToOnboarding(val user: User) : AuthEffect
-    data class ShowError(val error: AppError) : AuthEffect
-    data class ShowSuccess(val message: String) : AuthEffect
-    data object NavigateToForgotPassword : AuthEffect
-    data object NavigateToSignUp : AuthEffect
-}
-
-// User profile update
-@Serializable
+/**
+ * Update user profile request
+ */
 data class UpdateUserProfileRequest(
     val firstName: String? = null,
     val lastName: String? = null,
     val phone: String? = null,
     val profilePicture: String? = null,
-    val preferences: UserPreferences? = null
+    val preferences: UserPreferences? = null,
+    val address: UserAddress? = null
 )
 
-// Password change
-@Serializable
+/**
+ * Change password request
+ */
 data class ChangePasswordRequest(
     val currentPassword: String,
     val newPassword: String
 )
 
-// Email verification
-@Serializable
-data class EmailVerificationRequest(
-    val email: String
+/**
+ * User session state for reactive UI
+ */
+data class UserSessionState(
+    val isAuthenticated: Boolean = false,
+    val user: User? = null,
+    val tokens: JwtTokens? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
-@Serializable
-data class EmailVerificationResponse(
-    val success: Boolean,
-    val message: String
+/**
+ * User session state sealed class for more complex state management
+ */
+sealed class UserSessionStateSealed {
+    object Loading : UserSessionStateSealed()
+    object Unauthenticated : UserSessionStateSealed()
+    data class Authenticated(
+        val user: User,
+        val tokens: JwtTokens
+    ) : UserSessionStateSealed()
+    data class Error(val message: String) : UserSessionStateSealed()
+}
+
+/**
+ * Authentication UI State
+ */
+data class AuthUiState(
+    val isLoading: Boolean = false,
+    val error: AppError? = null,
+    val isAuthenticated: Boolean = false,
+    val user: User? = null
 )
+
+/**
+ * Authentication UI Events
+ */
+sealed interface AuthUiEvent {
+    data class SignIn(val email: String, val password: String) : AuthUiEvent
+    data class SignUp(val request: AuthRequest) : AuthUiEvent
+    data class SignInWithOAuth(
+        val provider: OAuthProvider,
+        val accessToken: String,
+        val userData: OAuthUserData
+    ) : AuthUiEvent
+    data class ForgotPassword(val email: String) : AuthUiEvent
+    object SignOut : AuthUiEvent
+    object CheckCurrentUser : AuthUiEvent
+    object RefreshSession : AuthUiEvent
+    object ClearError : AuthUiEvent
+}
+
+/**
+ * Authentication UI Effects
+ */
+sealed interface AuthEffect {
+    data class NavigateToHome(val user: User) : AuthEffect
+    data class NavigateToOnboarding(val user: User) : AuthEffect
+    object NavigateToSignUp : AuthEffect
+    object NavigateToForgotPassword : AuthEffect
+    data class ShowError(val error: AppError) : AuthEffect
+    data class ShowSuccess(val message: String) : AuthEffect
+}

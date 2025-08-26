@@ -12,7 +12,7 @@ class AuthRepositoryImpl(
     private val secureStorage: SecureStorage
 ) : AuthRepository {
     
-    private val _userSessionState = MutableStateFlow<UserSessionState>(UserSessionState.Loading)
+    private val _userSessionState = MutableStateFlow<UserSessionStateSealed>(UserSessionStateSealed.Loading)
     
     override suspend fun signIn(email: String, password: String): Result<AuthData> {
         return try {
@@ -35,22 +35,22 @@ class AuthRepositoryImpl(
                         secureStorage.saveUser(authData.user)
                         
                         // Update session state
-                        _userSessionState.value = UserSessionState.Authenticated(authData.user, tokens)
+                        _userSessionState.value = UserSessionStateSealed.Authenticated(authData.user, tokens)
                         
                         Result.success(authData)
                     } else {
                         val errorMessage = response.error?.message ?: "Sign in failed"
-                        _userSessionState.value = UserSessionState.Error(errorMessage)
+                        _userSessionState.value = UserSessionStateSealed.Error(errorMessage)
                         Result.failure(Exception(errorMessage))
                     }
                 },
                 onFailure = { error ->
-                    _userSessionState.value = UserSessionState.Error(error.message ?: "Sign in failed")
+                    _userSessionState.value = UserSessionStateSealed.Error(error.message ?: "Sign in failed")
                     Result.failure(error)
                 }
             )
         } catch (e: Exception) {
-            _userSessionState.value = UserSessionState.Error(e.message ?: "Sign in failed")
+            _userSessionState.value = UserSessionStateSealed.Error(e.message ?: "Sign in failed")
             Result.failure(e)
         }
     }
@@ -76,22 +76,22 @@ class AuthRepositoryImpl(
                         secureStorage.saveUser(authData.user)
                         
                         // Update session state
-                        _userSessionState.value = UserSessionState.Authenticated(authData.user, tokens)
+                        _userSessionState.value = UserSessionStateSealed.Authenticated(authData.user, tokens)
                         
                         Result.success(authData)
                     } else {
                         val errorMessage = response.error?.message ?: "Sign up failed"
-                        _userSessionState.value = UserSessionState.Error(errorMessage)
+                        _userSessionState.value = UserSessionStateSealed.Error(errorMessage)
                         Result.failure(Exception(errorMessage))
                     }
                 },
                 onFailure = { error ->
-                    _userSessionState.value = UserSessionState.Error(error.message ?: "Sign up failed")
+                    _userSessionState.value = UserSessionStateSealed.Error(error.message ?: "Sign up failed")
                     Result.failure(error)
                 }
             )
         } catch (e: Exception) {
-            _userSessionState.value = UserSessionState.Error(e.message ?: "Sign up failed")
+            _userSessionState.value = UserSessionStateSealed.Error(e.message ?: "Sign up failed")
             Result.failure(e)
         }
     }
@@ -117,22 +117,22 @@ class AuthRepositoryImpl(
                         secureStorage.saveUser(authData.user)
                         
                         // Update session state
-                        _userSessionState.value = UserSessionState.Authenticated(authData.user, tokens)
+                        _userSessionState.value = UserSessionStateSealed.Authenticated(authData.user, tokens)
                         
                         Result.success(authData)
                     } else {
                         val errorMessage = response.error?.message ?: "OAuth sign in failed"
-                        _userSessionState.value = UserSessionState.Error(errorMessage)
+                        _userSessionState.value = UserSessionStateSealed.Error(errorMessage)
                         Result.failure(Exception(errorMessage))
                     }
                 },
                 onFailure = { error ->
-                    _userSessionState.value = UserSessionState.Error(error.message ?: "OAuth sign in failed")
+                    _userSessionState.value = UserSessionStateSealed.Error(error.message ?: "OAuth sign in failed")
                     Result.failure(error)
                 }
             )
         } catch (e: Exception) {
-            _userSessionState.value = UserSessionState.Error(e.message ?: "OAuth sign in failed")
+            _userSessionState.value = UserSessionStateSealed.Error(e.message ?: "OAuth sign in failed")
             Result.failure(e)
         }
     }
@@ -157,22 +157,22 @@ class AuthRepositoryImpl(
                         secureStorage.saveRefreshToken(authData.refreshToken)
                         
                         // Update session state
-                        _userSessionState.value = UserSessionState.Authenticated(authData.user, tokens)
+                        _userSessionState.value = UserSessionStateSealed.Authenticated(authData.user, tokens)
                         
                         Result.success(authData)
                     } else {
                         val errorMessage = response.error?.message ?: "Token refresh failed"
-                        _userSessionState.value = UserSessionState.Error(errorMessage)
+                        _userSessionState.value = UserSessionStateSealed.Error(errorMessage)
                         Result.failure(Exception(errorMessage))
                     }
                 },
                 onFailure = { error ->
-                    _userSessionState.value = UserSessionState.Error(error.message ?: "Token refresh failed")
+                    _userSessionState.value = UserSessionStateSealed.Error(error.message ?: "Token refresh failed")
                     Result.failure(error)
                 }
             )
         } catch (e: Exception) {
-            _userSessionState.value = UserSessionState.Error(e.message ?: "Token refresh failed")
+            _userSessionState.value = UserSessionStateSealed.Error(e.message ?: "Token refresh failed")
             Result.failure(e)
         }
     }
@@ -210,8 +210,8 @@ class AuthRepositoryImpl(
                 
                 // Update session state if user is currently authenticated
                 val currentState = _userSessionState.value
-                if (currentState is UserSessionState.Authenticated) {
-                    _userSessionState.value = currentState.copy(user = updatedUser)
+                if (currentState is UserSessionStateSealed.Authenticated) {
+                    _userSessionState.value = UserSessionStateSealed.Authenticated(updatedUser, currentState.tokens)
                 }
             }
             result
@@ -277,7 +277,7 @@ class AuthRepositoryImpl(
             secureStorage.saveAccessToken(tokens.accessToken)
             secureStorage.saveRefreshToken(tokens.refreshToken)
             
-            _userSessionState.value = UserSessionState.Authenticated(user, tokens)
+            _userSessionState.value = UserSessionStateSealed.Authenticated(user, tokens)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -290,7 +290,7 @@ class AuthRepositoryImpl(
             secureStorage.clearAccessToken()
             secureStorage.clearRefreshToken()
             
-            _userSessionState.value = UserSessionState.Unauthenticated
+            _userSessionState.value = UserSessionStateSealed.Unauthenticated
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -313,7 +313,7 @@ class AuthRepositoryImpl(
         return tokens?.willExpireSoon(currentTime, withinMinutes) ?: true
     }
     
-    override fun observeUserSession(): Flow<UserSessionState> {
+    override fun observeUserSession(): Flow<UserSessionStateSealed> {
         return _userSessionState.asStateFlow()
     }
     

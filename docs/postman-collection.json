@@ -1,0 +1,899 @@
+{
+  "info": {
+    "name": "Event Management Platform - Dev Environment",
+    "description": "Complete test suite for the Event Management Platform deployed in dev environment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev",
+      "type": "string"
+    },
+    {
+      "key": "userPoolId",
+      "value": "ca-central-1_NgK0SDL4T",
+      "type": "string"
+    },
+    {
+      "key": "userPoolClientId",
+      "value": "2bbu335cjoe2afm71kjedbn86l",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "🔍 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 User Management",
+      "item": [
+        {
+          "name": "Register Attendee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"attendee@example.com\",\n  \"username\": \"attendee123\",\n  \"password\": \"TestPassword123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+1234567890\",\n  \"acceptTerms\": true,\n  \"marketingConsent\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.user) {",
+                  "        pm.collectionVariables.set('userId', response.data.user.id);",
+                  "        pm.collectionVariables.set('userEmail', response.data.user.email);",
+                  "        pm.collectionVariables.set('username', response.data.user.username);",
+                  "        pm.collectionVariables.set('userRole', response.data.user.role);",
+                  "        console.log('✅ User registered successfully:', response.data.user.id);",
+                  "        console.log('📧 Email:', response.data.user.email);",
+                  "        console.log('👤 Role:', response.data.user.role);",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Registration failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Organizer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tvigninou1@gmail.com\",\n  \"username\": \"haroldvigninou\",\n  \"password\": \"Campus2020$\",\n  \"firstName\": \"harold\",\n  \"lastName\": \"Vigninou\",\n  \"phoneNumber\": \"+4388871040\",\n  \"acceptTerms\": true,\n  \"marketingConsent\": true,\n  \"role\": \"organizer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.user) {",
+                  "        pm.collectionVariables.set('organizerId', response.data.user.id);",
+                  "        pm.collectionVariables.set('organizerEmail', response.data.user.email);",
+                  "        pm.collectionVariables.set('organizerUsername', response.data.user.username);",
+                  "        pm.collectionVariables.set('organizerRole', response.data.user.role);",
+                  "        console.log('✅ Organizer registered successfully:', response.data.user.id);",
+                  "        console.log('📧 Email:', response.data.user.email);",
+                  "        console.log('👤 Role:', response.data.user.role);",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Organizer registration failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"attendee@example.com\",\n  \"password\": \"TestPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        // Set user information",
+                  "        pm.collectionVariables.set('userId', response.data.user.id);",
+                  "        pm.collectionVariables.set('userEmail', response.data.user.email);",
+                  "        pm.collectionVariables.set('username', response.data.user.username);",
+                  "        pm.collectionVariables.set('userRole', response.data.user.role);",
+                  "        ",
+                  "        // Set authentication tokens",
+                  "        pm.collectionVariables.set('accessToken', response.data.accessToken);",
+                  "        pm.collectionVariables.set('refreshToken', response.data.refreshToken);",
+                  "        pm.collectionVariables.set('tokenExpiresIn', response.data.expiresIn);",
+                  "        ",
+                  "        // Set role-specific variables",
+                  "        if (response.data.user.role === 'organizer') {",
+                  "            pm.collectionVariables.set('organizerId', response.data.user.id);",
+                  "            pm.collectionVariables.set('organizerToken', response.data.accessToken);",
+                  "        } else if (response.data.user.role === 'attendee') {",
+                  "            pm.collectionVariables.set('attendeeId', response.data.user.id);",
+                  "            pm.collectionVariables.set('attendeeToken', response.data.accessToken);",
+                  "        }",
+                  "        ",
+                  "        console.log('✅ Login successful!');",
+                  "        console.log('👤 User ID:', response.data.user.id);",
+                  "        console.log('📧 Email:', response.data.user.email);",
+                  "        console.log('👤 Role:', response.data.user.role);",
+                  "        console.log('🔑 Access Token:', response.data.accessToken.substring(0, 50) + '...');",
+                  "        console.log('⏰ Token expires in:', response.data.expiresIn, 'seconds');",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Login failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phone\": \"+1234567891\",\n  \"preferences\": {\n    \"language\": \"en\",\n    \"timezone\": \"America/Toronto\",\n    \"notifications\": {\n      \"email\": true,\n      \"sms\": true,\n      \"push\": false\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Verification",
+      "item": [
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        console.log('✅ Email verified successfully!');",
+                  "        console.log('📧 User ID:', response.data.user.id);",
+                  "        console.log('✅ Email Verified:', response.data.user.emailVerified);",
+                  "        console.log('📊 Status:', response.data.user.status);",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Email verification failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Email Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-email-verification/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-email-verification", "{{userId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        console.log('✅ Email verification resent successfully!');",
+                  "        console.log('🆔 Verification ID:', response.data.verificationId);",
+                  "        console.log('📧 Check your email for the new code');",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Resend email verification failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send SMS Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/send-sms-verification/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "send-sms-verification", "{{userId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        console.log('✅ SMS verification sent successfully!');",
+                  "        console.log('🆔 Verification ID:', response.data.verificationId);",
+                  "        console.log('📱 Check your phone for the SMS code');",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Send SMS verification failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify SMS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-sms",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-sms"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data) {",
+                  "        console.log('✅ SMS verified successfully!');",
+                  "        console.log('📱 User ID:', response.data.user.id);",
+                  "        console.log('✅ Phone Verified:', response.data.user.phoneVerified);",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ SMS verification failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎉 Event Management",
+      "item": [
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Conference 2024\",\n  \"description\": \"Join us for the biggest tech conference of the year!\",\n  \"type\": \"CONFERENCE\",\n  \"category\": \"Technology\",\n  \"startDate\": \"2024-12-15T09:00:00Z\",\n  \"endDate\": \"2024-12-15T18:00:00Z\",\n  \"timezone\": \"America/Toronto\",\n  \"location\": {\n    \"venue\": \"Toronto Convention Center\",\n    \"address\": \"255 Front St W, Toronto, ON M5V 2W6\",\n    \"city\": \"Toronto\",\n    \"state\": \"Ontario\",\n    \"country\": \"Canada\",\n    \"postalCode\": \"M5V 2W6\",\n    \"coordinates\": {\n      \"latitude\": 43.6426,\n      \"longitude\": -79.3871\n    }\n  },\n  \"capacity\": 500,\n  \"pricing\": {\n    \"model\": \"TIERED\",\n    \"tiers\": [\n      {\n        \"name\": \"Early Bird\",\n        \"price\": 99.99,\n        \"currency\": \"CAD\",\n        \"availableUntil\": \"2024-11-15T23:59:59Z\",\n        \"quantity\": 100\n      },\n      {\n        \"name\": \"Regular\",\n        \"price\": 149.99,\n        \"currency\": \"CAD\",\n        \"availableUntil\": \"2024-12-10T23:59:59Z\",\n        \"quantity\": 300\n      },\n      {\n        \"name\": \"Last Minute\",\n        \"price\": 199.99,\n        \"currency\": \"CAD\",\n        \"availableUntil\": \"2024-12-15T08:59:59Z\",\n        \"quantity\": 100\n      }\n    ]\n  },\n  \"visibility\": \"PUBLIC\",\n  \"tags\": [\"technology\", \"conference\", \"networking\"],\n  \"organizer\": {\n    \"name\": \"Tech Events Inc.\",\n    \"email\": \"organizer@techevents.com\",\n    \"phone\": \"+1234567890\"\n  },\n  \"features\": {\n    \"hasWiFi\": true,\n    \"hasParking\": true,\n    \"isWheelchairAccessible\": true,\n    \"hasCatering\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('eventId', response.data.id);",
+                  "        pm.collectionVariables.set('eventTitle', response.data.title);",
+                  "        pm.collectionVariables.set('eventSlug', response.data.slug);",
+                  "        console.log('✅ Event created successfully!');",
+                  "        console.log('🎉 Event ID:', response.data.id);",
+                  "        console.log('📝 Title:', response.data.title);",
+                  "        console.log('🔗 Slug:', response.data.slug);",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ Event creation failed:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Conference 2024 - Updated\",\n  \"description\": \"Join us for the biggest tech conference of the year! Now with more speakers!\",\n  \"capacity\": 600,\n  \"tags\": [\"technology\", \"conference\", \"networking\", \"AI\", \"ML\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
+            }
+          }
+        },
+        {
+          "name": "Search Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/search?query=tech&category=Technology&startDate=2024-12-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "tech"
+                },
+                {
+                  "key": "category",
+                  "value": "Technology"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Booking Management",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"tierName\": \"Early Bird\",\n  \"quantity\": 2,\n  \"attendees\": [\n    {\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"john.doe@example.com\",\n      \"phone\": \"+1234567890\"\n    },\n    {\n      \"firstName\": \"Jane\",\n      \"lastName\": \"Smith\",\n      \"email\": \"jane.smith@example.com\",\n      \"phone\": \"+1234567891\"\n    }\n  ],\n  \"specialRequests\": \"Vegetarian meal preference for one attendee\",\n  \"paymentMethod\": {\n    \"type\": \"CARD\",\n    \"card\": {\n      \"number\": \"4242424242424242\",\n      \"expiryMonth\": \"12\",\n      \"expiryYear\": \"2025\",\n      \"cvc\": \"123\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('bookingId', response.booking.id);",
+                  "    console.log('Booking created successfully:', response.booking.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Booking by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Payment Processing",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 199.98,\n  \"currency\": \"CAD\",\n  \"paymentMethod\": {\n    \"type\": \"CARD\",\n    \"card\": {\n      \"number\": \"4242424242424242\",\n      \"expiryMonth\": \"12\",\n      \"expiryYear\": \"2025\",\n      \"cvc\": \"123\"\n    }\n  },\n  \"billingAddress\": {\n    \"line1\": \"123 Main St\",\n    \"line2\": \"Apt 4B\",\n    \"city\": \"Toronto\",\n    \"state\": \"Ontario\",\n    \"country\": \"Canada\",\n    \"postalCode\": \"M5V 2W6\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/process",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "process"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{bookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "Refund Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 199.98,\n  \"reason\": \"Customer request\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/refund",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "refund"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Analytics",
+      "item": [
+        {
+          "name": "Get Event Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/events/{{eventId}}?startDate=2024-12-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "events", "{{eventId}}"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/users/{{userId}}?startDate=2024-12-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "users", "{{userId}}"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Platform Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/platform?startDate=2024-12-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "platform"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Send Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"type\": \"EMAIL\",\n  \"template\": \"EVENT_REMINDER\",\n  \"data\": {\n    \"eventTitle\": \"Tech Conference 2024\",\n    \"eventDate\": \"2024-12-15T09:00:00Z\",\n    \"eventLocation\": \"Toronto Convention Center\"\n  },\n  \"priority\": \"HIGH\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "send"]
+            }
+          }
+        },
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userRole",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "organizerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "organizerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attendeeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attendeeToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventTitle",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventSlug",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

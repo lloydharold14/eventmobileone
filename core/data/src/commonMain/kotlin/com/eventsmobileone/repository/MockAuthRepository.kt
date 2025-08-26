@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Instant
 
 class MockAuthRepository : AuthRepository {
-    private val _userSessionState = MutableStateFlow<UserSessionState>(UserSessionState.Unauthenticated)
+    private val _userSessionState = MutableStateFlow<UserSessionStateSealed>(UserSessionStateSealed.Unauthenticated)
     private var currentUser: User? = null
     private var currentTokens: JwtTokens? = null
     
@@ -20,6 +20,7 @@ class MockAuthRepository : AuthRepository {
             val user = User(
                 id = "user-123",
                 email = email,
+                username = "testuser",
                 firstName = "Test",
                 lastName = "User",
                 role = UserRole.ATTENDEE,
@@ -42,7 +43,7 @@ class MockAuthRepository : AuthRepository {
             
             currentUser = user
             currentTokens = tokens
-            _userSessionState.value = UserSessionState.Authenticated(user, tokens)
+            _userSessionState.value = UserSessionStateSealed.Authenticated(user, tokens)
             
             Result.success(authData)
         } else {
@@ -56,8 +57,9 @@ class MockAuthRepository : AuthRepository {
         val user = User(
             id = "user-${getCurrentTime().toEpochMilliseconds()}",
             email = request.email,
-            firstName = request.firstName ?: "",
-            lastName = request.lastName ?: "",
+            username = request.username,
+            firstName = request.firstName,
+            lastName = request.lastName,
             phone = request.phone,
             role = request.role,
             emailVerified = false
@@ -79,7 +81,7 @@ class MockAuthRepository : AuthRepository {
         
         currentUser = user
         currentTokens = tokens
-        _userSessionState.value = UserSessionState.Authenticated(user, tokens)
+        _userSessionState.value = UserSessionStateSealed.Authenticated(user, tokens)
         
         return Result.success(authData)
     }
@@ -90,6 +92,7 @@ class MockAuthRepository : AuthRepository {
         val user = User(
             id = "oauth-user-${getCurrentTime().toEpochMilliseconds()}",
             email = request.userData.email,
+            username = request.userData.email.split("@").firstOrNull() ?: "oauthuser",
             firstName = request.userData.firstName,
             lastName = request.userData.lastName,
             profilePicture = request.userData.picture,
@@ -113,7 +116,7 @@ class MockAuthRepository : AuthRepository {
         
         currentUser = user
         currentTokens = tokens
-        _userSessionState.value = UserSessionState.Authenticated(user, tokens)
+        _userSessionState.value = UserSessionStateSealed.Authenticated(user, tokens)
         
         return Result.success(authData)
     }
@@ -130,7 +133,7 @@ class MockAuthRepository : AuthRepository {
             )
             
             currentTokens = newTokens
-            _userSessionState.value = UserSessionState.Authenticated(currentUser!!, newTokens)
+            _userSessionState.value = UserSessionStateSealed.Authenticated(currentUser!!, newTokens)
             
             Result.success(AuthData(
                 accessToken = newTokens.accessToken,
@@ -148,7 +151,7 @@ class MockAuthRepository : AuthRepository {
         
         currentUser = null
         currentTokens = null
-        _userSessionState.value = UserSessionState.Unauthenticated
+        _userSessionState.value = UserSessionStateSealed.Unauthenticated
         
         return Result.success(Unit)
     }
@@ -177,7 +180,7 @@ class MockAuthRepository : AuthRepository {
             
             currentUser = updatedUser
             if (currentTokens != null) {
-                _userSessionState.value = UserSessionState.Authenticated(updatedUser, currentTokens!!)
+                _userSessionState.value = UserSessionStateSealed.Authenticated(updatedUser, currentTokens!!)
             }
             
             Result.success(updatedUser)
@@ -222,14 +225,14 @@ class MockAuthRepository : AuthRepository {
     override suspend fun saveUserSession(user: User, tokens: JwtTokens): Result<Unit> {
         currentUser = user
         currentTokens = tokens
-        _userSessionState.value = UserSessionState.Authenticated(user, tokens)
+                    _userSessionState.value = UserSessionStateSealed.Authenticated(user, tokens)
         return Result.success(Unit)
     }
     
     override suspend fun clearUserSession(): Result<Unit> {
         currentUser = null
         currentTokens = null
-        _userSessionState.value = UserSessionState.Unauthenticated
+        _userSessionState.value = UserSessionStateSealed.Unauthenticated
         return Result.success(Unit)
     }
     
@@ -245,7 +248,7 @@ class MockAuthRepository : AuthRepository {
         return currentTokens?.willExpireSoon(currentTime, withinMinutes) ?: true
     }
     
-    override fun observeUserSession(): Flow<UserSessionState> {
+    override fun observeUserSession(): Flow<UserSessionStateSealed> {
         return _userSessionState.asStateFlow()
     }
     
@@ -260,7 +263,7 @@ class MockAuthRepository : AuthRepository {
     override suspend fun updateTokens(tokens: JwtTokens): Result<Unit> {
         currentTokens = tokens
         if (currentUser != null) {
-            _userSessionState.value = UserSessionState.Authenticated(currentUser!!, tokens)
+            _userSessionState.value = UserSessionStateSealed.Authenticated(currentUser!!, tokens)
         }
         return Result.success(Unit)
     }

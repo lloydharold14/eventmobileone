@@ -45,6 +45,11 @@ class AuthViewModel(
             is AuthUiEvent.SignInWithOAuth -> signInWithOAuth(event.provider, event.accessToken, event.userData)
             is AuthUiEvent.ForgotPassword -> forgotPassword(event.email)
             is AuthUiEvent.SignOut -> signOut()
+            is AuthUiEvent.CheckCurrentUser -> {
+                viewModelScope.launch(dispatcher) {
+                    checkCurrentUser()
+                }
+            }
             is AuthUiEvent.RefreshSession -> refreshSession()
             is AuthUiEvent.ClearError -> clearError()
         }

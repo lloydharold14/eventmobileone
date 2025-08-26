@@ -26,6 +26,8 @@ import com.eventsmobileone.usecase.GetEventsUseCase
 import com.eventsmobileone.auth.AuthViewModel
 import com.eventsmobileone.auth.LoginScreen
 import com.eventsmobileone.auth.SignUpScreen
+import com.eventsmobileone.auth.ModernLoginScreen
+import com.eventsmobileone.auth.ModernSignUpScreen
 import com.eventsmobileone.events.EventDetailScreen
 import com.eventsmobileone.usecase.SignInUseCase
 import com.eventsmobileone.usecase.SignInWithOAuthUseCase
@@ -179,7 +181,7 @@ fun AppRoot() {
         
         when (currentScreen) {
             Screen.Login -> {
-                LoginScreen(
+                ModernLoginScreen(
                     state = authState,
                     onEvent = authViewModel::onEvent,
                     onNavigateToSignUp = { currentScreen = Screen.SignUp },
@@ -187,7 +189,7 @@ fun AppRoot() {
                 )
             }
             Screen.SignUp -> {
-                SignUpScreen(
+                ModernSignUpScreen(
                     state = authState,
                     onEvent = authViewModel::onEvent,
                     onNavigateToLogin = { currentScreen = Screen.Login }

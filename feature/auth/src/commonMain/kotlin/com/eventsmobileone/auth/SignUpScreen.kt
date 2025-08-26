@@ -28,6 +28,7 @@ fun SignUpScreen(
 ) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -104,6 +105,20 @@ fun SignUpScreen(
                 isError = state.error?.userFriendlyMessage?.contains("last name", ignoreCase = true) == true
             )
         }
+        
+        // Username field
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            placeholder = { Text("johndoe") },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            isError = state.error?.userFriendlyMessage?.contains("username", ignoreCase = true) == true
+        )
         
         // Email field
         OutlinedTextField(
@@ -281,13 +296,14 @@ fun SignUpScreen(
         Button(
             onClick = {
                 println("DEBUG: Create Account button clicked")
-                println("DEBUG: Email: $email, FirstName: $firstName, LastName: $lastName")
+                println("DEBUG: Email: $email, Username: $username, FirstName: $firstName, LastName: $lastName")
                 println("DEBUG: Password length: ${password.length}, AcceptTerms: $acceptTerms")
                 val request = AuthRequest(
                     email = email,
                     password = password,
                     firstName = firstName,
                     lastName = lastName,
+                    username = username,
                     phone = phone.takeIf { it.isNotBlank() },
                     role = UserRole.ATTENDEE,
                     acceptTerms = acceptTerms
@@ -299,6 +315,7 @@ fun SignUpScreen(
                 val isEnabled = !state.isLoading && 
                          firstName.isNotBlank() && 
                          lastName.isNotBlank() && 
+                         username.isNotBlank() && 
                          email.isNotBlank() && 
                          password.isNotBlank() && 
                          password == confirmPassword && 
@@ -307,7 +324,7 @@ fun SignUpScreen(
                          password.any { it.isDigit() } && 
                          acceptTerms
                 println("DEBUG: Button enabled: $isEnabled")
-                println("DEBUG: Loading: ${state.isLoading}, FirstName: ${firstName.isNotBlank()}, LastName: ${lastName.isNotBlank()}")
+                println("DEBUG: Loading: ${state.isLoading}, FirstName: ${firstName.isNotBlank()}, LastName: ${lastName.isNotBlank()}, Username: ${username.isNotBlank()}")
                 println("DEBUG: Email: ${email.isNotBlank()}, Password: ${password.isNotBlank()}, ConfirmMatch: ${password == confirmPassword}")
                 println("DEBUG: PasswordLength: ${password.length >= 8}, HasUpper: ${password.any { it.isUpperCase() }}, HasDigit: ${password.any { it.isDigit() }}, AcceptTerms: $acceptTerms")
                 isEnabled

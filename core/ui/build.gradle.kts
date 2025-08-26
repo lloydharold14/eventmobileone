@@ -15,6 +15,7 @@ kotlin {
             implementation(project(":core:model"))
             implementation(project(":core:designsystem"))
             implementation(libs.kotlinx.coroutines)
+            implementation(libs.kotlinx.datetime)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

@@ -37,6 +37,7 @@ kotlin {
         implementation(project(":feature:filter"))
         implementation(project(":feature:location-search"))
         implementation(project(":feature:auth"))
+        implementation(project(":feature:tickets"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

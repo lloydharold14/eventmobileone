@@ -4,7 +4,7 @@ import kotlinx.datetime.Instant
 
 /**
  * Event model representing an event in the system
- * Updated to match the real API structure
+ * Updated to match the real API structure with enhanced localization
  */
 data class Event(
     val id: String,
@@ -23,7 +23,12 @@ data class Event(
     val currentAttendees: Int,
     val tags: List<String>,
     val features: List<String>,
-    val compliance: EventCompliance? = null
+    val compliance: EventCompliance? = null,
+    // Mobile-specific fields for attendee experience
+    val isBookmarked: Boolean = false,
+    val isNearby: Boolean = false,
+    val distance: Double? = null,
+    val localContent: MobileEventLocalContent? = null
 )
 
 /**
@@ -35,6 +40,16 @@ data class LocalizedContent(
 )
 
 /**
+ * Mobile-optimized event content
+ */
+data class MobileEventLocalContent(
+    val title: String,
+    val description: String,
+    val currency: String,
+    val formattedPrice: String
+)
+
+/**
  * Event location with detailed information
  */
 data class EventLocation(
@@ -42,7 +57,18 @@ data class EventLocation(
     val city: String,
     val province: String,
     val country: String,
-    val coordinates: Coordinates?
+    val coordinates: Coordinates?,
+    val venue: Venue? = null
+)
+
+/**
+ * Venue information
+ */
+data class Venue(
+    val name: String,
+    val description: String? = null,
+    val capacity: Int? = null,
+    val amenities: List<String>? = null
 )
 
 /**
@@ -51,7 +77,10 @@ data class EventLocation(
 data class EventOrganizer(
     val id: String,
     val name: String,
-    val email: String
+    val email: String,
+    val phone: String? = null,
+    val website: String? = null,
+    val logo: String? = null
 )
 
 /**
@@ -63,7 +92,22 @@ data class EventPricing(
     val displayCurrency: String,
     val displayAmount: Double,
     val exchangeRate: Double,
-    val availableCurrencies: Map<String, CurrencyInfo>
+    val availableCurrencies: Map<String, CurrencyInfo>,
+    val tiers: List<PricingTier>? = null
+)
+
+/**
+ * Pricing tier for different ticket types
+ */
+data class PricingTier(
+    val id: String,
+    val name: String,
+    val description: String? = null,
+    val price: Double,
+    val currency: String,
+    val availableQuantity: Int,
+    val maxQuantityPerPurchase: Int? = null,
+    val benefits: List<String>? = null
 )
 
 /**
@@ -189,3 +233,5 @@ data class EventCategory(
     val icon: String,
     val color: String
 )
+
+

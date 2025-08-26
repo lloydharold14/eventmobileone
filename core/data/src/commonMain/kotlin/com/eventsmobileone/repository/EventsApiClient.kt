@@ -273,11 +273,8 @@ class EventsApiClientImpl(
     
     private fun handleNetworkException(e: Exception): AppError {
         return when (e) {
-            is java.net.UnknownHostException -> NetworkError.ConnectionError(
-                userFriendlyMessage = "No internet connection. Please check your network and try again."
-            )
-            is java.net.SocketTimeoutException -> NetworkError.TimeoutError(
-                userFriendlyMessage = "Request timed out. Please try again."
+            is Exception -> NetworkError.ConnectionError(
+                userFriendlyMessage = "Network error occurred. Please try again."
             )
             else -> NetworkError.ConnectionError(
                 userFriendlyMessage = "Network error occurred. Please try again."

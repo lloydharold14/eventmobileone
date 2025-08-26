@@ -35,7 +35,7 @@ interface AuthRepository {
     suspend fun isTokenExpiringSoon(currentTime: Instant, withinMinutes: Long = 5): Boolean
     
     // Session state observation
-    fun observeUserSession(): Flow<UserSessionState>
+    fun observeUserSession(): Flow<UserSessionStateSealed>
     
     // Token management
     suspend fun getAccessToken(): String?
