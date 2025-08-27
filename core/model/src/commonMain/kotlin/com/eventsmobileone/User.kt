@@ -2,6 +2,7 @@ package com.eventsmobileone
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /**
  * Mobile-optimized User model representing an attendee in the system
@@ -69,13 +70,21 @@ data class UserAddress(
  */
 @Serializable
 data class AuthRequest(
+    @SerialName("email")
     val email: String,
+    @SerialName("username")
     val username: String,
+    @SerialName("password")
     val password: String,
+    @SerialName("firstName")
     val firstName: String,
+    @SerialName("lastName")
     val lastName: String,
+    @SerialName("phone")
     val phone: String? = null,
+    @SerialName("termsAccepted")
     val acceptTerms: Boolean = true,
+    @SerialName("marketingConsent")
     val marketingConsent: Boolean = false
 )
 

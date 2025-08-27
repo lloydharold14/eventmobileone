@@ -121,6 +121,10 @@ class AuthApiClientImpl(
             println("DEBUG: Using base URL: $baseUrl")
             println("DEBUG: Request body: $request")
             
+            // Debug JSON serialization
+            val jsonString = json.encodeToString(AuthRequest.serializer(), request)
+            println("DEBUG: JSON being sent: $jsonString")
+            
             val response = httpClient.post("$baseUrl/auth/register") {
                 contentType(ContentType.Application.Json)
                 addMobileUserAgent()
