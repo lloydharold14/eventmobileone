@@ -305,7 +305,6 @@ fun SignUpScreen(
                     lastName = lastName,
                     username = username,
                     phone = phone.takeIf { it.isNotBlank() },
-                    role = UserRole.ATTENDEE,
                     acceptTerms = acceptTerms
                 )
                 println("DEBUG: Dispatching AuthUiEvent.SignUp")

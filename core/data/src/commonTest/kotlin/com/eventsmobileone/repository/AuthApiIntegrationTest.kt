@@ -157,6 +157,7 @@ class AuthApiIntegrationTest {
         
         val signUpRequest = AuthRequest(
             email = testEmail,
+            username = "duplicate_${System.currentTimeMillis()}",
             password = testPassword,
             firstName = "Test",
             lastName = "User",
@@ -202,6 +203,7 @@ class AuthApiIntegrationTest {
         val signUpResponse = authApiClient.signUp(
             AuthRequest(
                 email = testEmail,
+                username = "direct_${System.currentTimeMillis()}",
                 password = testPassword,
                 firstName = "Direct",
                 lastName = "Test",

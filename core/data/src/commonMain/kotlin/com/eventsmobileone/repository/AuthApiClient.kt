@@ -117,38 +117,79 @@ class AuthApiClientImpl(
     
     override suspend fun signUp(request: AuthRequest): Result<AuthResponse> {
         return try {
+            println("DEBUG: Attempting sign up for email: ${request.email}")
+            println("DEBUG: Using base URL: $baseUrl")
+            println("DEBUG: Request body: $request")
+            
             val response = httpClient.post("$baseUrl/auth/register") {
                 contentType(ContentType.Application.Json)
                 addMobileUserAgent()
                 setBody(request)
             }
             
+            // Debug User-Agent
+            println("DEBUG: User-Agent being sent: EventMO Mobile App")
+            
+            println("DEBUG: Response status: ${response.status}")
+            println("DEBUG: Response body: ${response.bodyAsText()}")
+            
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    val authResponse = response.body<AuthResponse>()
-                    if (authResponse.success) {
-                        Result.success(authResponse)
-                    } else {
-                        Result.failure(handleAuthError(authResponse.error))
+                    try {
+                        val authResponse = response.body<AuthResponse>()
+                        println("DEBUG: Parsed auth response: $authResponse")
+                        if (authResponse.success) {
+                            Result.success(authResponse)
+                        } else {
+                            println("DEBUG: Auth response indicates failure: ${authResponse.error}")
+                            Result.failure(handleAuthError(authResponse.error))
+                        }
+                    } catch (e: Exception) {
+                        println("DEBUG: Error parsing response: ${e.message}")
+                        Result.failure(NetworkError.ClientError(
+                            statusCode = response.status.value,
+                            userFriendlyMessage = "Failed to parse response: ${e.message}"
+                        ))
                     }
                 }
                 HttpStatusCode.Conflict -> {
+                    println("DEBUG: Email already exists error")
                     Result.failure(AuthError.EmailAlreadyExists(
                         userFriendlyMessage = "An account with this email already exists."
                     ))
                 }
                 HttpStatusCode.BadRequest -> {
-                    Result.failure(AuthError.WeakPassword(
-                        userFriendlyMessage = "Password is too weak. Please use a stronger password."
-                    ))
+                    println("DEBUG: Bad request error - reading response body")
+                    try {
+                        val errorBody = response.bodyAsText()
+                        println("DEBUG: Bad request error body: $errorBody")
+                        
+                        // Try to parse the error response
+                        val errorResponse = json.decodeFromString<AuthResponse>(errorBody)
+                        if (errorResponse.error != null) {
+                            println("DEBUG: Parsed error response: ${errorResponse.error}")
+                            Result.failure(handleAuthError(errorResponse.error))
+                        } else {
+                            Result.failure(AuthError.WeakPassword(
+                                userFriendlyMessage = "Invalid request data. Please check your input and try again."
+                            ))
+                        }
+                    } catch (e: Exception) {
+                        println("DEBUG: Error parsing bad request response: ${e.message}")
+                        Result.failure(AuthError.WeakPassword(
+                            userFriendlyMessage = "Invalid request data. Please check your input and try again."
+                        ))
+                    }
                 }
                 HttpStatusCode.InternalServerError -> {
+                    println("DEBUG: Internal server error")
                     Result.failure(NetworkError.ServerError(
                         statusCode = response.status.value,
                         userFriendlyMessage = "Server error occurred. Please try again later."
                     ))
                 }
                 else -> {
+                    println("DEBUG: Unexpected status code: ${response.status}")
                     Result.failure(NetworkError.ClientError(
                         statusCode = response.status.value,
                         userFriendlyMessage = "Request failed. Please try again."
@@ -156,6 +197,7 @@ class AuthApiClientImpl(
                 }
             }
         } catch (e: Exception) {
+            println("DEBUG: Exception in signUp: ${e.message}")
             Result.failure(handleNetworkException(e))
         }
     }

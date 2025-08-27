@@ -244,8 +244,8 @@ fun ModernSignUpScreen(
                                     password = password,
                                     firstName = firstName,
                                     lastName = lastName,
-                                    username = email.split("@").firstOrNull() ?: "",
-                            acceptTerms = acceptTerms
+                                    username = username,
+                                    acceptTerms = acceptTerms
                                 )
                             )
                         )

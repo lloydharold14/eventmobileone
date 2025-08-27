@@ -55,13 +55,13 @@ class MockAuthRepository : AuthRepository {
         delay(1000) // Simulate network delay
         
         val user = User(
-            id = "user-${getCurrentTime().toEpochMilliseconds()}",
+            id = "mock-user-${getCurrentTime().toEpochMilliseconds()}",
             email = request.email,
             username = request.username,
             firstName = request.firstName,
             lastName = request.lastName,
             phone = request.phone,
-            role = request.role,
+            role = UserRole.ATTENDEE,
             emailVerified = false
         )
         

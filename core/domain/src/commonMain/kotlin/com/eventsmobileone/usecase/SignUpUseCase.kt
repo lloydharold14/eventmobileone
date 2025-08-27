@@ -42,6 +42,19 @@ class SignUpUseCase(
             return Result.failure(IllegalArgumentException("Invalid email format"))
         }
         
+        // Username validation
+        if (request.username.isBlank()) {
+            return Result.failure(IllegalArgumentException("Username cannot be empty"))
+        }
+        
+        if (request.username.length < 3) {
+            return Result.failure(IllegalArgumentException("Username must be at least 3 characters"))
+        }
+        
+        if (!request.username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
+            return Result.failure(IllegalArgumentException("Username can only contain letters, numbers, and underscores"))
+        }
+        
         // Password validation
         if (request.password.isBlank()) {
             return Result.failure(IllegalArgumentException("Password cannot be empty"))

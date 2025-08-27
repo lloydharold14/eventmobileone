@@ -23,8 +23,6 @@ data class User(
     val address: UserAddress? = null,
     val status: String = "active",
     val lastLoginAt: String? = null
-    // Removed: PK, SK, GSI1PK, GSI1SK, GSI2PK, GSI2SK, GSI3PK, GSI3SK (DynamoDB internal)
-    // Removed: createdAt, updatedAt (system timestamps)
 )
 
 /**
@@ -77,7 +75,6 @@ data class AuthRequest(
     val firstName: String,
     val lastName: String,
     val phone: String? = null,
-    val role: UserRole = UserRole.ATTENDEE,
     val acceptTerms: Boolean = true,
     val marketingConsent: Boolean = false
 )
