@@ -82,7 +82,7 @@ data class AuthRequest(
     val lastName: String,
     @SerialName("phone")
     val phone: String? = null,
-    @SerialName("termsAccepted")
+    @SerialName("acceptTerms")
     val acceptTerms: Boolean = true,
     @SerialName("marketingConsent")
     val marketingConsent: Boolean = false
