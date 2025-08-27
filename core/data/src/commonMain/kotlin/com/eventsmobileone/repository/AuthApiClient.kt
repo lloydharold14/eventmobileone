@@ -43,6 +43,7 @@ class AuthApiClientImpl(
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
+        encodeDefaults = true
     }
     
     override suspend fun signIn(email: String, password: String): Result<AuthResponse> {
