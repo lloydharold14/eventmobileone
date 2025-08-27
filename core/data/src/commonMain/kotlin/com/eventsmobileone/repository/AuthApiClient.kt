@@ -16,6 +16,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import io.ktor.client.statement.bodyAsText
+import com.eventsmobileone.repository.HttpClientExtensions.addMobileUserAgent
 
 interface AuthApiClient {
     suspend fun signIn(email: String, password: String): Result<AuthResponse>
@@ -57,8 +58,12 @@ class AuthApiClientImpl(
             
             val response = httpClient.post("$baseUrl/auth/login") {
                 contentType(ContentType.Application.Json)
+                addMobileUserAgent()
                 setBody(requestBody)
             }
+            
+            // Debug User-Agent
+            println("DEBUG: User-Agent being sent: EventMO Mobile App")
             
             println("DEBUG: Response status: ${response.status}")
             println("DEBUG: Response body: ${response.bodyAsText()}")
@@ -114,6 +119,7 @@ class AuthApiClientImpl(
         return try {
             val response = httpClient.post("$baseUrl/auth/register") {
                 contentType(ContentType.Application.Json)
+                addMobileUserAgent()
                 setBody(request)
             }
             
@@ -354,4 +360,6 @@ class AuthApiClientImpl(
             )
         }
     }
+    
+
 }

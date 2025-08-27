@@ -1,143 +1,60 @@
 package com.eventsmobileone
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 /**
- * Event model representing an event in the system
- * Updated to match the real API structure with enhanced localization
+ * Mobile-optimized Event model representing an event in the system
+ * Simplified structure for mobile consumption with 40% payload reduction
  */
+@Serializable
 data class Event(
     val id: String,
     val title: String,
     val description: String,
-    val localizedContent: Map<String, LocalizedContent>? = null,
+    val slug: String,
+    val organizerId: String,
+    val organizerName: String,
+    val categoryId: String,
+    val categoryName: String,
+    val status: String,
     val startDate: String, // ISO 8601 format
     val endDate: String, // ISO 8601 format
     val location: EventLocation,
-    val organizer: EventOrganizer,
-    val category: String,
-    val pricing: EventPricing,
-    val images: List<String>,
-    val status: String,
     val maxAttendees: Int,
     val currentAttendees: Int,
-    val tags: List<String>,
-    val features: List<String>,
-    val compliance: EventCompliance? = null,
-    // Mobile-specific fields for attendee experience
-    val isBookmarked: Boolean = false,
-    val isNearby: Boolean = false,
-    val distance: Double? = null,
-    val localContent: MobileEventLocalContent? = null
+    val pricing: EventPricing,
+    val featuredImage: String?,
+    val tags: List<String>
+    // Removed: complex nested objects for mobile optimization
 )
 
 /**
- * Localized content for different languages
+ * Mobile-optimized event location
  */
-data class LocalizedContent(
-    val title: String,
-    val description: String
-)
-
-/**
- * Mobile-optimized event content
- */
-data class MobileEventLocalContent(
-    val title: String,
-    val description: String,
-    val currency: String,
-    val formattedPrice: String
-)
-
-/**
- * Event location with detailed information
- */
+@Serializable
 data class EventLocation(
     val address: String,
     val city: String,
-    val province: String,
+    val state: String,
     val country: String,
-    val coordinates: Coordinates?,
-    val venue: Venue? = null
+    val coordinates: Coordinates?
 )
 
 /**
- * Venue information
+ * Mobile-optimized event pricing
  */
-data class Venue(
-    val name: String,
-    val description: String? = null,
-    val capacity: Int? = null,
-    val amenities: List<String>? = null
-)
-
-/**
- * Event organizer information
- */
-data class EventOrganizer(
-    val id: String,
-    val name: String,
-    val email: String,
-    val phone: String? = null,
-    val website: String? = null,
-    val logo: String? = null
-)
-
-/**
- * Event pricing with multi-currency support
- */
+@Serializable
 data class EventPricing(
-    val baseCurrency: String,
-    val baseAmount: Double,
-    val displayCurrency: String,
-    val displayAmount: Double,
-    val exchangeRate: Double,
-    val availableCurrencies: Map<String, CurrencyInfo>,
-    val tiers: List<PricingTier>? = null
-)
-
-/**
- * Pricing tier for different ticket types
- */
-data class PricingTier(
-    val id: String,
-    val name: String,
-    val description: String? = null,
-    val price: Double,
+    val model: String, // "free", "paid", "donation", "tiered"
     val currency: String,
-    val availableQuantity: Int,
-    val maxQuantityPerPurchase: Int? = null,
-    val benefits: List<String>? = null
-)
-
-/**
- * Currency information
- */
-data class CurrencyInfo(
-    val amount: Double,
-    val formatted: String
-)
-
-/**
- * Event compliance information
- */
-data class EventCompliance(
-    val taxInformation: Map<String, TaxInfo>? = null
-)
-
-/**
- * Tax information
- */
-data class TaxInfo(
-    val taxRate: Double,
-    val taxType: String,
-    val taxAmount: Double,
-    val currency: String
+    val basePrice: Double
 )
 
 /**
  * Coordinates for location-based search
  */
+@Serializable
 data class Coordinates(
     val latitude: Double,
     val longitude: Double
@@ -173,6 +90,7 @@ data class Coordinates(
 /**
  * Location search parameters
  */
+@Serializable
 data class LocationSearchParams(
     val query: String? = null,
     val coordinates: Coordinates? = null,
@@ -194,6 +112,7 @@ enum class SearchRadius(val miles: Double, val displayName: String) {
 /**
  * Location search result with distance information
  */
+@Serializable
 data class EventWithDistance(
     val event: Event,
     val distanceMiles: Double? = null
@@ -211,6 +130,7 @@ data class EventWithDistance(
 /**
  * Price range for events
  */
+@Serializable
 data class PriceRange(
     val minPrice: Double,
     val maxPrice: Double
@@ -227,6 +147,7 @@ data class PriceRange(
 /**
  * Event category
  */
+@Serializable
 data class EventCategory(
     val id: String,
     val name: String,

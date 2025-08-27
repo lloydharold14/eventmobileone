@@ -9,10 +9,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eventsmobileone.Event
 import com.eventsmobileone.EventLocation
-import com.eventsmobileone.EventOrganizer
 import com.eventsmobileone.EventPricing
 import com.eventsmobileone.Coordinates
-import com.eventsmobileone.CurrencyInfo
 import com.eventsmobileone.designsystem.AppSpacing
 import com.eventsmobileone.domain.tickets.GetEventTickets
 import com.eventsmobileone.domain.tickets.PurchaseTickets
@@ -41,37 +39,29 @@ fun TicketPurchaseDemoScreen(
         id = "event-006",
         title = "Canadian Business Leadership Summit",
         description = "Connect with Canada's top business leaders, entrepreneurs, and investors.",
+        slug = "canadian-business-leadership-summit",
+        organizerId = "org-006",
+        organizerName = "Business Leadership Institute",
+        categoryId = "business",
+        categoryName = "Business",
+        status = "published",
         startDate = "2024-06-25T08:00:00Z",
         endDate = "2024-06-27T17:00:00Z",
         location = EventLocation(
             address = "Fairmont Royal York, Toronto, ON",
             city = "Toronto",
-            province = "ON",
+            state = "ON",
             country = "Canada",
             coordinates = Coordinates(43.6487, -79.3775)
         ),
-        organizer = EventOrganizer(
-            id = "org-006",
-            name = "Business Leadership Institute",
-            email = "info@bli.com"
-        ),
-        category = "business",
-        pricing = EventPricing(
-            baseCurrency = "CAD",
-            baseAmount = 1299.99,
-            displayCurrency = "CAD",
-            displayAmount = 1299.99,
-            exchangeRate = 1.0,
-            availableCurrencies = mapOf(
-                "CAD" to CurrencyInfo(1.0, "$1.00"),
-                "USD" to CurrencyInfo(0.75, "$0.75")
-            )
-        ),
-        images = emptyList(),
         maxAttendees = 600,
         currentAttendees = 280,
-        status = "published",
-        features = listOf("networking", "workshops", "keynotes", "exhibition", "catering"),
+        pricing = EventPricing(
+            model = "paid",
+            currency = "CAD",
+            basePrice = 1299.99
+        ),
+        featuredImage = null,
         tags = listOf("business", "leadership", "networking", "strategy", "innovation")
     )
     

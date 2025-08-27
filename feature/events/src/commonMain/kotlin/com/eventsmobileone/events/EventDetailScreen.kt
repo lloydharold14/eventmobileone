@@ -45,7 +45,7 @@ fun EventDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    if (event.images.isNotEmpty()) {
+                    if (event.featuredImage != null) {
                         // TODO: Add AsyncImage when Coil is available
                         Box(
                             modifier = Modifier
@@ -71,7 +71,7 @@ fun EventDetailScreen(
                     // Category chip
                     FilterChip(
                         onClick = { },
-                        label = { Text(event.category) },
+                        label = { Text(event.categoryName) },
                         selected = false
                     )
                 }
@@ -118,7 +118,7 @@ fun EventDetailScreen(
                         
                         // Organizer
                         Text(
-                            text = "Organized by ${event.organizer.name}",
+                            text = "Organized by ${event.organizerName}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -172,7 +172,7 @@ fun EventDetailScreen(
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "${event.pricing.displayCurrency} ${event.pricing.displayAmount}",
+                                text = "${event.pricing.currency} ${event.pricing.basePrice}",
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold
                             )

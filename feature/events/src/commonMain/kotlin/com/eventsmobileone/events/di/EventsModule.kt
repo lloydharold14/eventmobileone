@@ -2,7 +2,7 @@ package com.eventsmobileone.events.di
 
 import com.eventsmobileone.events.EventsViewModel
 import com.eventsmobileone.repository.EventsRepository
-import com.eventsmobileone.repository.MockEventsRepository
+import com.eventsmobileone.repository.EventsRepositoryImpl
 import com.eventsmobileone.usecase.GetCategoriesUseCase
 import com.eventsmobileone.usecase.GetEventsUseCase
 import com.eventsmobileone.usecase.GetEventByIdUseCase
@@ -14,7 +14,7 @@ import org.koin.dsl.module
  */
 val eventsModule = module {
     // Repository - Mock implementation for now
-    single<EventsRepository> { MockEventsRepository() }
+    single<EventsRepository> { EventsRepositoryImpl(eventsApiClient = get()) }
     
     // Use Cases
     factory { GetCategoriesUseCase(get()) }

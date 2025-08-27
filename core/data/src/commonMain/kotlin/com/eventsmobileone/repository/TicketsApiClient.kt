@@ -11,6 +11,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import com.eventsmobileone.repository.HttpClientExtensions.addMobileUserAgent
 
 class TicketsApiClient(
     private val httpClient: HttpClient,
@@ -21,6 +22,7 @@ class TicketsApiClient(
     suspend fun getEventTickets(eventId: String): List<TicketType> {
         val authToken = secureStorage.getAccessToken()
         val response = httpClient.get("$baseUrl/events/$eventId/tickets") {
+            addMobileUserAgent()
             headers {
                 append("Accept-Language", "en-CA")
                 append("X-User-Currency", "CAD")
@@ -35,6 +37,7 @@ class TicketsApiClient(
         val authToken = secureStorage.getAccessToken()
         val response = httpClient.post("$baseUrl/events/${request.eventId}/purchase") {
             contentType(ContentType.Application.Json)
+            addMobileUserAgent()
             headers {
                 append("Accept-Language", "en-CA")
                 append("X-User-Currency", "CAD")
@@ -49,6 +52,7 @@ class TicketsApiClient(
     suspend fun getUserTickets(): List<Ticket> {
         val authToken = secureStorage.getAccessToken()
         val response = httpClient.get("$baseUrl/tickets") {
+            addMobileUserAgent()
             headers {
                 append("Accept-Language", "en-CA")
                 append("X-User-Currency", "CAD")
@@ -62,6 +66,7 @@ class TicketsApiClient(
     suspend fun getTicketById(ticketId: String): Ticket {
         val authToken = secureStorage.getAccessToken()
         val response = httpClient.get("$baseUrl/tickets/$ticketId") {
+            addMobileUserAgent()
             headers {
                 append("Accept-Language", "en-CA")
                 append("X-User-Currency", "CAD")

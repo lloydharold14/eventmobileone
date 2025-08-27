@@ -82,7 +82,7 @@ fun ModernEventCard(
                     shape = RoundedCornerShape(AppRadius.sm)
                 ) {
                     Text(
-                        text = event.category ?: "Event",
+                        text = event.categoryName,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
@@ -100,7 +100,7 @@ fun ModernEventCard(
                     shape = RoundedCornerShape(AppRadius.sm)
                 ) {
                     Text(
-                        text = "${event.pricing.displayCurrency} ${event.pricing.displayAmount}",
+                        text = "${event.pricing.currency} ${event.pricing.basePrice}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
@@ -163,7 +163,7 @@ fun ModernEventCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "by ${event.organizer.name}",
+                        text = "by ${event.organizerName}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

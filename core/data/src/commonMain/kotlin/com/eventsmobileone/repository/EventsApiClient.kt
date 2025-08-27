@@ -13,6 +13,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import com.eventsmobileone.repository.HttpClientExtensions.addMobileUserAgent
 
 interface EventsApiClient {
     suspend fun getEvents(
@@ -115,6 +116,7 @@ class EventsApiClientImpl(
             val queryString = queryParams.joinToString("&")
             val response = httpClient.get("$baseUrl/events?$queryString") {
                 contentType(ContentType.Application.Json)
+                addMobileUserAgent()
             }
             
             when (response.status) {
@@ -155,6 +157,7 @@ class EventsApiClientImpl(
         return try {
             val response = httpClient.get("$baseUrl/events/$eventId") {
                 contentType(ContentType.Application.Json)
+                addMobileUserAgent()
             }
             
             when (response.status) {
@@ -200,6 +203,7 @@ class EventsApiClientImpl(
             val queryString = queryParams.joinToString("&")
             val response = httpClient.get("$baseUrl/events/search?$queryString") {
                 contentType(ContentType.Application.Json)
+                addMobileUserAgent()
             }
             
             when (response.status) {
@@ -239,6 +243,7 @@ class EventsApiClientImpl(
     override suspend fun getCategories(): Result<CategoriesResponse> {
         return try {
             val response = httpClient.get("$baseUrl/categories") {
+                addMobileUserAgent()
                 contentType(ContentType.Application.Json)
             }
             

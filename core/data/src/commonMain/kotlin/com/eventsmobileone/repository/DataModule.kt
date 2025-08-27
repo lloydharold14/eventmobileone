@@ -30,8 +30,26 @@ val dataModule = module {
     single<TicketsApiClient> { 
         TicketsApiClient(
             httpClient = get(),
-            baseUrl = "https://a5sma74inf.execute-api.ca-central-1.amazonaws.com/dev",
+            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev",
             secureStorage = get()
+        )
+    }
+    single<BookingsApiClient> { 
+        BookingsApiClientImpl(
+            httpClient = get(),
+            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+        )
+    }
+    single<NotificationsApiClient> { 
+        NotificationsApiClientImpl(
+            httpClient = get(),
+            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+        )
+    }
+    single<SearchApiClient> { 
+        SearchApiClientImpl(
+            httpClient = get(),
+            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
         )
     }
     
@@ -60,6 +78,27 @@ val dataModule = module {
     single<TicketsRepository> { 
         TicketsRepositoryImpl(
             ticketsApiClient = get()
+        )
+    }
+    
+    // Bookings Repository - Using real API
+    single<BookingsRepository> { 
+        BookingsRepositoryImpl(
+            bookingsApiClient = get()
+        )
+    }
+    
+    // Notifications Repository - Using real API
+    single<NotificationsRepository> { 
+        NotificationsRepositoryImpl(
+            notificationsApiClient = get()
+        )
+    }
+    
+    // Search Repository - Using real API
+    single<SearchRepository> { 
+        SearchRepositoryImpl(
+            searchApiClient = get()
         )
     }
 }

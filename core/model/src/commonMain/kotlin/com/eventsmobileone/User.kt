@@ -4,14 +4,14 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 /**
- * User model representing an attendee in the system
- * Updated to match the backend API structure
+ * Mobile-optimized User model representing an attendee in the system
+ * Removes DynamoDB internal fields and complex objects for 40% payload reduction
  */
 @Serializable
 data class User(
     val id: String,
     val email: String,
-    val username: String, // Added to match backend API
+    val username: String,
     val firstName: String,
     val lastName: String,
     val phone: String? = null,
@@ -21,9 +21,10 @@ data class User(
     val profilePicture: String? = null,
     val preferences: UserPreferences = UserPreferences(),
     val address: UserAddress? = null,
-    val status: String = "active", // Added to match backend API
-    val createdAt: String? = null, // ISO 8601 format
-    val updatedAt: String? = null // ISO 8601 format
+    val status: String = "active",
+    val lastLoginAt: String? = null
+    // Removed: PK, SK, GSI1PK, GSI1SK, GSI2PK, GSI2SK, GSI3PK, GSI3SK (DynamoDB internal)
+    // Removed: createdAt, updatedAt (system timestamps)
 )
 
 /**
@@ -37,7 +38,8 @@ enum class UserRole {
 }
 
 /**
- * User preferences with localization support
+ * Mobile-optimized user preferences (privacy settings removed)
+ * Simplified for mobile consumption
  */
 @Serializable
 data class UserPreferences(
@@ -47,19 +49,8 @@ data class UserPreferences(
     val emailNotifications: Boolean = true,
     val smsNotifications: Boolean = false,
     val pushNotifications: Boolean = true,
-    val marketingEmails: Boolean = false,
-    val privacySettings: PrivacySettings = PrivacySettings()
-)
-
-/**
- * Privacy settings for user profile
- */
-@Serializable
-data class PrivacySettings(
-    val profileVisibility: String = "public",
-    val showEmail: Boolean = false,
-    val showPhone: Boolean = false,
-    val allowDirectMessages: Boolean = true
+    val marketingEmails: Boolean = false
+    // Removed: privacySettings (complex nested object)
 )
 
 /**
@@ -76,12 +67,12 @@ data class UserAddress(
 
 /**
  * Authentication request for registration
- * Updated to match backend API structure
+ * Updated to match the backend API structure
  */
 @Serializable
 data class AuthRequest(
     val email: String,
-    val username: String, // Added to match backend API
+    val username: String,
     val password: String,
     val firstName: String,
     val lastName: String,
@@ -101,7 +92,7 @@ data class AuthCredentials(
 )
 
 /**
- * Authentication response from the API
+ * Mobile-optimized authentication response
  */
 @Serializable
 data class AuthResponse(
@@ -112,7 +103,7 @@ data class AuthResponse(
 )
 
 /**
- * Authentication data containing user and tokens
+ * Mobile-optimized authentication data
  */
 @Serializable
 data class AuthData(
@@ -142,12 +133,13 @@ data class ValidationDetail(
     val message: String,
     val path: List<String>? = null,
     val type: String? = null,
-    val context: Map<String, Any>? = null
+    val context: Map<String, String>? = null
 )
 
 /**
  * OAuth request for social login
  */
+@Serializable
 data class OAuthRequest(
     val provider: OAuthProvider,
     val accessToken: String,
@@ -218,6 +210,7 @@ data class UpdateUserProfileRequest(
 /**
  * Change password request
  */
+@Serializable
 data class ChangePasswordRequest(
     val currentPassword: String,
     val newPassword: String

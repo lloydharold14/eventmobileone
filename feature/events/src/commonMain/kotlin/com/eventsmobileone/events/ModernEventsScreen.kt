@@ -332,7 +332,7 @@ fun ModernEventDetailHeader(
                     shape = RoundedCornerShape(AppRadius.sm)
                 ) {
                     Text(
-                        text = event.category ?: "Event",
+                        text = event.categoryName,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
@@ -351,7 +351,7 @@ fun ModernEventDetailHeader(
                 
                 // Price
                 Text(
-                    text = "${event.pricing.displayCurrency} ${event.pricing.displayAmount}",
+                                            text = "${event.pricing.currency} ${event.pricing.basePrice}",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold

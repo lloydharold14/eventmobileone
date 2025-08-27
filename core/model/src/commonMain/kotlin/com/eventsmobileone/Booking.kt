@@ -1,188 +1,311 @@
-package com.eventsmobileone
+package com.eventsmobileone.model
+
+import kotlinx.serialization.Serializable
+import kotlinx.datetime.Instant
+import com.eventsmobileone.Event
 
 /**
- * Booking model representing a ticket booking for an attendee
+ * Mobile-optimized booking request for creating a new booking
  */
+@Serializable
+data class BookingRequest(
+    val eventId: String,
+    val ticketQuantity: Int,
+    val attendeeInfo: AttendeeInfo,
+    val specialRequests: String? = null,
+    val paymentMethod: String? = null
+)
+
+/**
+ * Mobile-optimized booking response from API
+ */
+@Serializable
+data class BookingResponse(
+    val success: Boolean,
+    val message: String,
+    val booking: Booking,
+    val paymentIntent: PaymentIntent? = null,
+    val timestamp: String? = null
+)
+
+/**
+ * Mobile-optimized booking entity
+ */
+@Serializable
 data class Booking(
     val id: String,
     val eventId: String,
-    val userId: String,
-    val tickets: List<BookingTicket>,
+    val eventTitle: String,
+    val attendeeId: String,
+    val status: BookingStatus,
+    val ticketQuantity: Int,
     val totalAmount: Double,
     val currency: String,
-    val status: BookingStatus,
-    val paymentStatus: PaymentStatus,
-    val attendeeInfo: AttendeeInfo,
     val bookingDate: String, // ISO 8601 format
-    val eventDate: String, // ISO 8601 format
     val qrCode: String? = null,
-    val bookingConfirmation: String? = null
+    val paymentStatus: PaymentStatus
+    // Removed: complex nested objects for mobile optimization
 )
 
 /**
- * Individual ticket within a booking
+ * Booking status enum
  */
-data class BookingTicket(
-    val id: String,
-    val ticketTypeId: String,
-    val ticketTypeName: String,
-    val price: Double,
-    val currency: String,
-    val attendeeName: String,
-    val attendeeEmail: String? = null,
-    val qrCode: String? = null,
-    val isUsed: Boolean = false,
-    val usedAt: String? = null // ISO 8601 format
-)
-
-/**
- * Attendee information for the booking
- */
-data class AttendeeInfo(
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val phone: String? = null,
-    val specialRequirements: String? = null
-)
-
-/**
- * Booking status
- */
-enum class BookingStatus(val displayName: String) {
-    PENDING("Pending"),
-    CONFIRMED("Confirmed"),
-    CANCELLED("Cancelled"),
-    REFUNDED("Refunded"),
-    EXPIRED("Expired")
+@Serializable
+enum class BookingStatus {
+    PENDING,
+    CONFIRMED,
+    CANCELLED,
+    COMPLETED,
+    REFUNDED
 }
 
 /**
- * Payment status
+ * Payment status enum
  */
-enum class PaymentStatus(val displayName: String) {
-    PENDING("Pending"),
-    PROCESSING("Processing"),
-    COMPLETED("Completed"),
-    FAILED("Failed"),
-    REFUNDED("Refunded"),
-    CANCELLED("Cancelled")
+@Serializable
+enum class PaymentStatus {
+    PENDING,
+    PAID,
+    FAILED,
+    REFUNDED
 }
 
 /**
- * Booking request for creating a new booking
+ * Mobile-optimized payment request for creating payment intent
  */
-data class BookingRequest(
-    val eventId: String,
-    val tickets: List<TicketRequest>,
-    val attendeeInfo: AttendeeInfo,
-    val promoCode: String? = null,
-    val paymentMethod: PaymentMethod? = null
-)
-
-/**
- * Individual ticket request
- */
-data class TicketRequest(
-    val ticketTypeId: String,
-    val quantity: Int,
-    val attendeeName: String,
-    val attendeeEmail: String? = null
-)
-
-/**
- * Payment method for booking
- */
-data class PaymentMethod(
-    val type: PaymentMethodType,
-    val token: String? = null,
-    val cardLast4: String? = null,
-    val cardBrand: String? = null
-)
-
-/**
- * Payment method types
- */
-enum class PaymentMethodType(val displayName: String) {
-    CREDIT_CARD("Credit Card"),
-    PAYPAL("PayPal"),
-    APPLE_PAY("Apple Pay"),
-    GOOGLE_PAY("Google Pay"),
-    STRIPE("Stripe")
-}
-
-/**
- * Payment intent for processing payments
- */
-data class PaymentIntent(
-    val id: String,
+@Serializable
+data class PaymentRequest(
+    val bookingId: String,
     val amount: Double,
     val currency: String,
-    val status: PaymentIntentStatus,
-    val clientSecret: String? = null,
-    val paymentMethodId: String? = null,
-    val confirmationMethod: String? = null
+    val paymentMethod: String,
+    val description: String? = null,
+    val metadata: Map<String, String>? = null
 )
 
 /**
- * Payment intent status
+ * Mobile-optimized payment intent from payment processor
  */
-enum class PaymentIntentStatus(val displayName: String) {
-    REQUIRES_PAYMENT_METHOD("Requires Payment Method"),
-    REQUIRES_CONFIRMATION("Requires Confirmation"),
-    REQUIRES_ACTION("Requires Action"),
-    PROCESSING("Processing"),
-    REQUIRES_CAPTURE("Requires Capture"),
-    CANCELED("Canceled"),
-    SUCCEEDED("Succeeded")
-}
-
-/**
- * Promo code for discounts
- */
-data class PromoCode(
-    val code: String,
-    val discountType: DiscountType,
-    val discountValue: Double,
-    val currency: String? = null,
-    val minimumAmount: Double? = null,
-    val maximumDiscount: Double? = null,
-    val validFrom: String? = null, // ISO 8601 format
-    val validUntil: String? = null, // ISO 8601 format
-    val usageLimit: Int? = null,
-    val usageCount: Int = 0,
-    val isActive: Boolean = true
-)
-
-/**
- * Discount types
- */
-enum class DiscountType(val displayName: String) {
-    PERCENTAGE("Percentage"),
-    FIXED_AMOUNT("Fixed Amount")
-}
-
-/**
- * Booking summary for UI display
- */
-data class BookingSummary(
-    val bookingId: String,
-    val eventTitle: String,
-    val eventDate: String,
-    val totalTickets: Int,
-    val totalAmount: Double,
+@Serializable
+data class PaymentIntent(
+    val id: String,
+    val clientSecret: String,
+    val amount: Int, // Amount in cents
     val currency: String,
-    val status: BookingStatus,
-    val qrCode: String? = null
+    val status: String,
+    val paymentMethod: String? = null,
+    val description: String? = null,
+    val metadata: Map<String, String>? = null
 )
 
 /**
- * Booking history for user profile
+ * Mobile-optimized payment result
  */
-data class BookingHistory(
-    val bookings: List<BookingSummary>,
+@Serializable
+data class PaymentResult(
+    val id: String,
+    val bookingId: String,
+    val amount: Double,
+    val currency: String,
+    val status: PaymentStatus,
+    val paymentMethod: String,
+    val transactionId: String? = null,
+    val createdAt: String, // ISO 8601 format
+    val refundedAt: String? = null,
+    val refundAmount: Double? = null,
+    val failureReason: String? = null
+)
+
+/**
+ * Mobile-optimized QR code validation request
+ */
+@Serializable
+data class QrCodeValidationRequest(
+    val qrCode: String,
+    val eventId: String,
+    val validationType: ValidationType = ValidationType.CHECK_IN
+)
+
+/**
+ * Mobile-optimized QR code validation result
+ */
+@Serializable
+data class QrCodeValidation(
+    val isValid: Boolean,
+    val bookingId: String? = null,
+    val eventId: String? = null,
+    val eventTitle: String? = null,
+    val attendeeName: String? = null,
+    val ticketQuantity: Int? = null,
+    val checkInTime: String? = null, // ISO 8601 format
+    val checkInLocation: String? = null,
+    val validationType: ValidationType,
+    val message: String,
+    val errorCode: String? = null
+)
+
+/**
+ * Validation type enum
+ */
+@Serializable
+enum class ValidationType {
+    CHECK_IN,
+    CHECK_OUT,
+    VERIFICATION
+}
+
+/**
+ * Mobile-optimized notification preferences
+ */
+@Serializable
+data class NotificationPreferences(
+    val emailNotifications: Boolean = true,
+    val smsNotifications: Boolean = false,
+    val pushNotifications: Boolean = true,
+    val marketingEmails: Boolean = false,
+    val eventReminders: Boolean = true,
+    val bookingConfirmations: Boolean = true,
+    val paymentReceipts: Boolean = true
+)
+
+/**
+ * Mobile-optimized user notification
+ */
+@Serializable
+data class UserNotification(
+    val id: String,
+    val userId: String,
+    val title: String,
+    val message: String,
+    val type: NotificationType,
+    val isRead: Boolean = false,
+    val createdAt: String, // ISO 8601 format
+    val actionUrl: String? = null,
+    val metadata: Map<String, String>? = null
+)
+
+/**
+ * Notification type enum
+ */
+@Serializable
+enum class NotificationType {
+    EVENT_REMINDER,
+    BOOKING_CONFIRMATION,
+    PAYMENT_RECEIPT,
+    EVENT_UPDATE,
+    SYSTEM_MESSAGE
+}
+
+/**
+ * Mobile-optimized search query for events
+ */
+@Serializable
+data class EventSearchQuery(
+    val query: String? = null,
+    val category: String? = null,
+    val location: String? = null,
+    val startDate: String? = null, // ISO 8601 format
+    val endDate: String? = null, // ISO 8601 format
+    val priceRange: PriceRange? = null,
+    val availability: AvailabilityFilter? = null,
+    val page: Int = 1,
+    val limit: Int = 20
+)
+
+/**
+ * Mobile-optimized price range filter
+ */
+@Serializable
+data class PriceRange(
+    val min: Double? = null,
+    val max: Double? = null,
+    val currency: String = "USD"
+)
+
+/**
+ * Availability filter
+ */
+@Serializable
+enum class AvailabilityFilter {
+    AVAILABLE,
+    LIMITED,
+    SOLD_OUT,
+    ALL
+}
+
+/**
+ * Mobile-optimized search suggestions
+ */
+@Serializable
+data class SearchSuggestions(
+    val events: List<String> = emptyList(),
+    val categories: List<String> = emptyList(),
+    val locations: List<String> = emptyList(),
+    val trending: List<String> = emptyList()
+)
+
+/**
+ * Mobile-optimized trending events
+ */
+@Serializable
+data class TrendingEvents(
+    val events: List<Event>,
+    val period: String, // "today", "week", "month"
+    val timestamp: String // ISO 8601 format
+)
+
+/**
+ * Mobile-optimized nearby events
+ */
+@Serializable
+data class NearbyEvents(
+    val events: List<Event>,
+    val location: Location,
+    val radius: Double, // in kilometers
+    val timestamp: String // ISO 8601 format
+)
+
+/**
+ * Mobile-optimized location coordinates
+ */
+@Serializable
+data class Location(
+    val latitude: Double,
+    val longitude: Double,
+    val address: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val country: String? = null
+)
+
+/**
+ * Mobile-optimized user activity analytics
+ */
+@Serializable
+data class UserActivity(
+    val userId: String,
     val totalBookings: Int,
+    val totalEvents: Int,
     val totalSpent: Double,
-    val currency: String
+    val currency: String,
+    val favoriteCategories: List<String>,
+    val lastActivity: String, // ISO 8601 format
+    val activityPeriod: String // "week", "month", "year"
+)
+
+/**
+ * Mobile-optimized event analytics for attendees
+ */
+@Serializable
+data class EventAnalytics(
+    val eventId: String,
+    val totalAttendees: Int,
+    val totalRevenue: Double,
+    val currency: String,
+    val averageRating: Double? = null,
+    val checkInRate: Double, // percentage
+    val popularTicketTypes: List<String>,
+    val peakBookingTimes: List<String>, // ISO 8601 format
+    val timestamp: String // ISO 8601 format
 )
 
