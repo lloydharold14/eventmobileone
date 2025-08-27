@@ -35,6 +35,7 @@ fun ModernSignUpScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var acceptTerms by remember { mutableStateOf(false) }
     
     // Debug logging for state changes
@@ -152,6 +153,19 @@ fun ModernSignUpScreen(
                     isError = state.error?.userFriendlyMessage?.contains("email", ignoreCase = true) == true
                 )
                 
+                // Phone Field
+                ModernOutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = "Phone Number",
+                    placeholder = "Enter your phone number",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.error?.userFriendlyMessage?.contains("phone", ignoreCase = true) == true
+                )
+                
                 // Password Field
                 ModernOutlinedTextField(
                     value = password,
@@ -216,6 +230,7 @@ fun ModernSignUpScreen(
                                 firstName = firstName,
                                 lastName = lastName,
                                 username = username,
+                                phone = phone,
                                 acceptTerms = acceptTerms
                             )
                         )
@@ -225,6 +240,7 @@ fun ModernSignUpScreen(
                          lastName.isNotEmpty() && 
                          username.isNotEmpty() && 
                          email.isNotEmpty() && 
+                         phone.isNotEmpty() &&
                          password.isNotEmpty() && 
                          confirmPassword.isNotEmpty() && 
                          acceptTerms && 
@@ -245,6 +261,7 @@ fun ModernSignUpScreen(
                                     firstName = firstName,
                                     lastName = lastName,
                                     username = username,
+                                    phone = phone,
                                     acceptTerms = acceptTerms
                                 )
                             )

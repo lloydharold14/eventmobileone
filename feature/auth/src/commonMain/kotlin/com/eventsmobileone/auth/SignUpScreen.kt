@@ -304,7 +304,7 @@ fun SignUpScreen(
                     firstName = firstName,
                     lastName = lastName,
                     username = username,
-                    phone = phone.takeIf { it.isNotBlank() },
+                    phone = phone,
                     acceptTerms = acceptTerms
                 )
                 println("DEBUG: Dispatching AuthUiEvent.SignUp")
@@ -316,6 +316,7 @@ fun SignUpScreen(
                          lastName.isNotBlank() && 
                          username.isNotBlank() && 
                          email.isNotBlank() && 
+                         phone.isNotBlank() &&
                          password.isNotBlank() && 
                          password == confirmPassword && 
                          password.length >= 8 && 
@@ -324,7 +325,7 @@ fun SignUpScreen(
                          acceptTerms
                 println("DEBUG: Button enabled: $isEnabled")
                 println("DEBUG: Loading: ${state.isLoading}, FirstName: ${firstName.isNotBlank()}, LastName: ${lastName.isNotBlank()}, Username: ${username.isNotBlank()}")
-                println("DEBUG: Email: ${email.isNotBlank()}, Password: ${password.isNotBlank()}, ConfirmMatch: ${password == confirmPassword}")
+                println("DEBUG: Email: ${email.isNotBlank()}, Phone: ${phone.isNotBlank()}, Password: ${password.isNotBlank()}, ConfirmMatch: ${password == confirmPassword}")
                 println("DEBUG: PasswordLength: ${password.length >= 8}, HasUpper: ${password.any { it.isUpperCase() }}, HasDigit: ${password.any { it.isDigit() }}, AcceptTerms: $acceptTerms")
                 isEnabled
             },
