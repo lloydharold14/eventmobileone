@@ -17,6 +17,9 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 
+# Documentation files
+docs/
+
 # Cursor AI IDE files - Comprehensive patterns
 .cursor/
 .cursorrules
