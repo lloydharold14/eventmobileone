@@ -139,9 +139,9 @@ fun ModernLoginScreen(
             ModernPrimaryButton(
                 text = "Sign In",
                 onClick = {
-                    onEvent(AuthUiEvent.SignIn(email, password))
+                    onEvent(AuthUiEvent.SignIn(email.trim(), password.trim()))
                 },
-                enabled = email.isNotEmpty() && password.isNotEmpty() && !state.isLoading,
+                enabled = email.trim().isNotEmpty() && password.trim().isNotEmpty() && !state.isLoading,
                 isLoading = state.isLoading
             )
             
@@ -150,7 +150,7 @@ fun ModernLoginScreen(
                 ModernErrorCard(
                     error = error.userFriendlyMessage,
                     onRetry = {
-                        onEvent(AuthUiEvent.SignIn(email, password))
+                        onEvent(AuthUiEvent.SignIn(email.trim(), password.trim()))
                     }
                 )
             }

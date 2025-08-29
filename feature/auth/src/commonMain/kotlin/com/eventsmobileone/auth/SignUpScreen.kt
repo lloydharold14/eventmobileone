@@ -299,12 +299,12 @@ fun SignUpScreen(
                 println("DEBUG: Email: $email, Username: $username, FirstName: $firstName, LastName: $lastName")
                 println("DEBUG: Password length: ${password.length}, AcceptTerms: $acceptTerms")
                 val request = AuthRequest(
-                    email = email,
-                    password = password,
-                    firstName = firstName,
-                    lastName = lastName,
-                    username = username,
-                    phone = phone,
+                    email = email.trim(),
+                    password = password.trim(),
+                    firstName = firstName.trim(),
+                    lastName = lastName.trim(),
+                    username = username.trim(),
+                    phone = phone.trim(),
                     acceptTerms = acceptTerms
                 )
                 println("DEBUG: Dispatching AuthUiEvent.SignUp")
@@ -312,21 +312,21 @@ fun SignUpScreen(
             },
             enabled = run {
                 val isEnabled = !state.isLoading && 
-                         firstName.isNotBlank() && 
-                         lastName.isNotBlank() && 
-                         username.isNotBlank() && 
-                         email.isNotBlank() && 
-                         phone.isNotBlank() &&
-                         password.isNotBlank() && 
-                         password == confirmPassword && 
-                         password.length >= 8 && 
-                         password.any { it.isUpperCase() } && 
-                         password.any { it.isDigit() } && 
+                         firstName.trim().isNotBlank() && 
+                         lastName.trim().isNotBlank() && 
+                         username.trim().isNotBlank() && 
+                         email.trim().isNotBlank() && 
+                         phone.trim().isNotBlank() &&
+                         password.trim().isNotBlank() && 
+                         password.trim() == confirmPassword.trim() && 
+                         password.trim().length >= 8 && 
+                         password.trim().any { it.isUpperCase() } && 
+                         password.trim().any { it.isDigit() } && 
                          acceptTerms
                 println("DEBUG: Button enabled: $isEnabled")
-                println("DEBUG: Loading: ${state.isLoading}, FirstName: ${firstName.isNotBlank()}, LastName: ${lastName.isNotBlank()}, Username: ${username.isNotBlank()}")
-                println("DEBUG: Email: ${email.isNotBlank()}, Phone: ${phone.isNotBlank()}, Password: ${password.isNotBlank()}, ConfirmMatch: ${password == confirmPassword}")
-                println("DEBUG: PasswordLength: ${password.length >= 8}, HasUpper: ${password.any { it.isUpperCase() }}, HasDigit: ${password.any { it.isDigit() }}, AcceptTerms: $acceptTerms")
+                println("DEBUG: Loading: ${state.isLoading}, FirstName: ${firstName.trim().isNotBlank()}, LastName: ${lastName.trim().isNotBlank()}, Username: ${username.trim().isNotBlank()}")
+                println("DEBUG: Email: ${email.trim().isNotBlank()}, Phone: ${phone.trim().isNotBlank()}, Password: ${password.trim().isNotBlank()}, ConfirmMatch: ${password.trim() == confirmPassword.trim()}")
+                println("DEBUG: PasswordLength: ${password.trim().length >= 8}, HasUpper: ${password.trim().any { it.isUpperCase() }}, HasDigit: ${password.trim().any { it.isDigit() }}, AcceptTerms: $acceptTerms")
                 isEnabled
             },
             modifier = Modifier

@@ -225,24 +225,24 @@ fun ModernSignUpScreen(
                     onEvent(
                         AuthUiEvent.SignUp(
                             request = AuthRequest(
-                                email = email,
-                                password = password,
-                                firstName = firstName,
-                                lastName = lastName,
-                                username = username,
-                                phone = phone,
+                                email = email.trim(),
+                                password = password.trim(),
+                                firstName = firstName.trim(),
+                                lastName = lastName.trim(),
+                                username = username.trim(),
+                                phone = phone.trim(),
                                 acceptTerms = acceptTerms
                             )
                         )
                     )
                 },
-                enabled = firstName.isNotEmpty() && 
-                         lastName.isNotEmpty() && 
-                         username.isNotEmpty() && 
-                         email.isNotEmpty() && 
-                         phone.isNotEmpty() &&
-                         password.isNotEmpty() && 
-                         confirmPassword.isNotEmpty() && 
+                enabled = firstName.trim().isNotEmpty() && 
+                         lastName.trim().isNotEmpty() && 
+                         username.trim().isNotEmpty() && 
+                         email.trim().isNotEmpty() && 
+                         phone.trim().isNotEmpty() &&
+                         password.trim().isNotEmpty() && 
+                         confirmPassword.trim().isNotEmpty() && 
                          acceptTerms && 
                          !state.isLoading,
                 isLoading = state.isLoading
@@ -256,12 +256,12 @@ fun ModernSignUpScreen(
                         onEvent(
                             AuthUiEvent.SignUp(
                                 request = AuthRequest(
-                                    email = email,
-                                    password = password,
-                                    firstName = firstName,
-                                    lastName = lastName,
-                                    username = username,
-                                    phone = phone,
+                                    email = email.trim(),
+                                    password = password.trim(),
+                                    firstName = firstName.trim(),
+                                    lastName = lastName.trim(),
+                                    username = username.trim(),
+                                    phone = phone.trim(),
                                     acceptTerms = acceptTerms
                                 )
                             )

@@ -162,8 +162,8 @@ fun LoginScreen(
         
         // Sign in button
         Button(
-            onClick = { onEvent(AuthUiEvent.SignIn(email, password)) },
-            enabled = !state.isLoading && email.isNotBlank() && password.isNotBlank(),
+            onClick = { onEvent(AuthUiEvent.SignIn(email.trim(), password.trim())) },
+            enabled = !state.isLoading && email.trim().isNotBlank() && password.trim().isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
