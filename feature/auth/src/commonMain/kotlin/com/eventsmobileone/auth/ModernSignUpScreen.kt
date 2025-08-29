@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -191,8 +194,61 @@ fun ModernSignUpScreen(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    isError = state.error?.userFriendlyMessage?.contains("confirm", ignoreCase = true) == true
+                    isError = state.error?.userFriendlyMessage?.contains("confirm", ignoreCase = true) == true ||
+                             (confirmPassword.isNotEmpty() && password.trim() != confirmPassword.trim())
                 )
+                
+                // Password requirements and confirmation status
+                if (password.isNotEmpty() || confirmPassword.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "Password requirements:",
+                            style = ModernTypography.labelMedium(),
+                            color = colorScheme.onSurfaceVariant
+                        )
+                        
+                        // Password length requirement
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (password.trim().length >= 8) Icons.Default.Check else Icons.Default.Close,
+                                contentDescription = null,
+                                tint = if (password.trim().length >= 8) colorScheme.primary else colorScheme.error,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "At least 8 characters",
+                                style = ModernTypography.labelMedium(),
+                                color = if (password.trim().length >= 8) colorScheme.primary else colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
+                        // Password match requirement
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) Icons.Default.Check else Icons.Default.Close,
+                                contentDescription = null,
+                                tint = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) colorScheme.primary else colorScheme.error,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "Passwords match",
+                                style = ModernTypography.labelMedium(),
+                                color = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) colorScheme.primary else colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
                 
                 // Terms and Conditions
                 Row(
@@ -243,6 +299,7 @@ fun ModernSignUpScreen(
                          phone.trim().isNotEmpty() &&
                          password.trim().isNotEmpty() && 
                          confirmPassword.trim().isNotEmpty() && 
+                         password.trim() == confirmPassword.trim() &&
                          acceptTerms && 
                          !state.isLoading,
                 isLoading = state.isLoading
