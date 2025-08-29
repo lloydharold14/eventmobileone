@@ -46,7 +46,7 @@ val dataModule = module {
         NotificationsApiClientImpl(
             httpClient = get(),
             baseUrl = "https://api.event.tkhtech.com"
-        )
+            )
     }
     single<SearchApiClient> { 
         SearchApiClientImpl(

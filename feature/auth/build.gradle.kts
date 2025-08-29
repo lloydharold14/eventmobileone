@@ -6,7 +6,11 @@ plugins {
 }
 
 kotlin {
-    androidTarget()
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
     iosArm64()
     iosSimulatorArm64()
     
@@ -42,5 +46,20 @@ android {
     
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+    
+    // Build variants for different environments
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+        }
+        create("staging") {
+            dimension = "environment"
+        }
+        create("prod") {
+            dimension = "environment"
+        }
     }
 }

@@ -5,7 +5,11 @@ plugins {
 }
 
 kotlin {
-    androidTarget()
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
     iosArm64()
     iosSimulatorArm64()
     
@@ -42,5 +46,50 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    buildFeatures {
+        buildConfig = true
+    }
+    
+    defaultConfig {
+        buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://dev-api.event.tkhtech.com\"")
+        buildConfigField("boolean", "IS_DEBUG", "true")
+    }
+    
+    buildTypes {
+        debug {
+            buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev-api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+        }
+        release {
+            buildConfigField("String", "ENVIRONMENT", "\"prod\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "false")
+        }
+    }
+    
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev-api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+        }
+        create("staging") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"staging\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://staging-api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"prod\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "false")
+        }
     }
 }

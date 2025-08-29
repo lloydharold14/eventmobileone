@@ -36,6 +36,11 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        // Build config fields for environment configuration
+        buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://dev-api.event.tkhtech.com\"")
+        buildConfigField("boolean", "IS_DEBUG", "true")
     }
     
     packaging {
@@ -45,8 +50,51 @@ android {
     }
     
     buildTypes {
-        getByName("release") {
+        debug {
             isMinifyEnabled = false
+            buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev-api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+            buildConfigField("String", "VERSION_NAME", "\"1.0.0-dev\"")
+            buildConfigField("int", "VERSION_CODE", "1")
+        }
+        
+        release {
+            isMinifyEnabled = false
+            buildConfigField("String", "ENVIRONMENT", "\"prod\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "false")
+            buildConfigField("String", "VERSION_NAME", "\"1.0.0\"")
+            buildConfigField("int", "VERSION_CODE", "1")
+        }
+    }
+    
+    // Build variants for different environments
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            buildConfigField("String", "ENVIRONMENT", "\"dev\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev-api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+        }
+        
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            buildConfigField("String", "ENVIRONMENT", "\"staging\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://staging-api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+        }
+        
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"prod\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.event.tkhtech.com\"")
+            buildConfigField("boolean", "IS_DEBUG", "false")
         }
     }
     
@@ -57,6 +105,7 @@ android {
     
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     
     lint {

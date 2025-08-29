@@ -35,9 +35,9 @@ expect class PlatformHttpClient() {
 }
 
 class AuthApiClientImpl(
-            private val baseUrl: String = "https://api.event.tkhtech.com",
-    private val languageService: com.eventsmobileone.LanguageService
-) : AuthApiClient {
+        private val baseUrl: String = "https://api.event.tkhtech.com",
+        private val languageService: com.eventsmobileone.LanguageService
+    ) : AuthApiClient {
     
     private val httpClient = PlatformHttpClient().client
     
