@@ -61,6 +61,9 @@ class AuthApiClientImpl(
             val response = httpClient.post("$baseUrl/auth/login") {
                 contentType(ContentType.Application.Json)
                 addMobileUserAgent()
+                headers {
+                    append("Accept-Language", languageService.getAcceptLanguageHeader())
+                }
                 setBody(requestBody)
             }
             
@@ -130,6 +133,9 @@ class AuthApiClientImpl(
             val response = httpClient.post("$baseUrl/auth/register") {
                 contentType(ContentType.Application.Json)
                 addMobileUserAgent()
+                headers {
+                    append("Accept-Language", languageService.getAcceptLanguageHeader())
+                }
                 setBody(request)
             }
             
