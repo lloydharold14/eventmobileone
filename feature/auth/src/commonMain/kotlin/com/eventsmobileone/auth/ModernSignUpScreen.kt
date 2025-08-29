@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
+// import androidx.compose.material.icons.Icons
+// import androidx.compose.material.icons.filled.Check
+// import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -215,11 +215,11 @@ fun ModernSignUpScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(
-                                imageVector = if (password.trim().length >= 8) Icons.Default.Check else Icons.Default.Close,
-                                contentDescription = null,
-                                tint = if (password.trim().length >= 8) colorScheme.primary else colorScheme.error,
-                                modifier = Modifier.size(16.dp)
+                            // TODO: Add platform-specific icon implementation
+                            Text(
+                                text = if (password.trim().length >= 8) "✓" else "✗",
+                                color = if (password.trim().length >= 8) colorScheme.primary else colorScheme.error,
+                                style = ModernTypography.labelMedium()
                             )
                             Text(
                                 text = "At least 8 characters",
@@ -233,11 +233,11 @@ fun ModernSignUpScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(
-                                imageVector = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) Icons.Default.Check else Icons.Default.Close,
-                                contentDescription = null,
-                                tint = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) colorScheme.primary else colorScheme.error,
-                                modifier = Modifier.size(16.dp)
+                            // TODO: Add platform-specific icon implementation
+                            Text(
+                                text = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) "✓" else "✗",
+                                color = if (password.trim() == confirmPassword.trim() && confirmPassword.isNotEmpty()) colorScheme.primary else colorScheme.error,
+                                style = ModernTypography.labelMedium()
                             )
                             Text(
                                 text = "Passwords match",

@@ -32,6 +32,7 @@ kotlin {
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
+
                 
                 // Core modules
                 implementation(projects.core.model)

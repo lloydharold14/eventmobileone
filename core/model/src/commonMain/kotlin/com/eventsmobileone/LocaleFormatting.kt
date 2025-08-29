@@ -64,26 +64,37 @@ object LocaleFormatting {
      * @return Formatted number string
      */
     fun formatNumber(number: Double, localeCode: String): String {
+        // Simple number formatting for multiplatform compatibility
+        val formatted = when {
+            number == number.toLong().toDouble() -> number.toLong().toString()
+            else -> {
+                val decimal = (number * 100).toInt()
+                val whole = decimal / 100
+                val fraction = decimal % 100
+                if (fraction == 0) whole.toString() else "$whole.${fraction.toString().padStart(2, '0')}"
+            }
+        }
+        
         return when (localeCode) {
             "fr-CA", "fr-FR", "fr-BJ", "fr-TG" -> {
                 // French: 1 234,56
-                String.format("%,.2f", number).replace(",", " ").replace(".", ",")
+                formatted.replace(".", ",")
             }
             "de-DE", "es-ES", "es-US", "es-MX", "it-IT", "pt-BR" -> {
                 // German/Spanish/Italian/Portuguese: 1.234,56
-                String.format("%,.2f", number).replace(",", ".").replace(".", ",")
+                formatted.replace(".", ",")
             }
             "ja-JP" -> {
                 // Japanese: 1,234
-                String.format("%,.0f", number)
+                formatted.split(".")[0]
             }
             "hi-IN", "en-IN" -> {
                 // Indian: 1,234.56
-                String.format("%,.2f", number)
+                formatted
             }
             else -> {
                 // Default English: 1,234.56
-                String.format("%,.2f", number)
+                formatted
             }
         }
     }

@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
+// import androidx.compose.material.icons.Icons
+// import androidx.compose.material.icons.filled.ArrowBack
+// import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,11 +50,8 @@ fun ForgotPasswordScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
+                // TODO: Add platform-specific icon implementation
+                Text("←", style = ModernTypography.titleLarge())
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -144,11 +141,11 @@ fun ForgotPasswordScreen(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Email Sent",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(48.dp)
+                    // TODO: Add platform-specific icon implementation
+                    Text(
+                        text = "📧",
+                        style = ModernTypography.titleLarge(),
+                        color = MaterialTheme.colorScheme.primary
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
