@@ -32,26 +32,26 @@ val dataModule = module {
     single<TicketsApiClient> { 
         TicketsApiClient(
             httpClient = get(),
-            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev",
+            baseUrl = "https://api.event.tkhtech.com",
             secureStorage = get()
         )
     }
     single<BookingsApiClient> { 
         BookingsApiClientImpl(
             httpClient = get(),
-            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+            baseUrl = "https://api.event.tkhtech.com"
         )
     }
     single<NotificationsApiClient> { 
         NotificationsApiClientImpl(
             httpClient = get(),
-            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+            baseUrl = "https://api.event.tkhtech.com"
         )
     }
     single<SearchApiClient> { 
         SearchApiClientImpl(
             httpClient = get(),
-            baseUrl = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+            baseUrl = "https://api.event.tkhtech.com"
         )
     }
     

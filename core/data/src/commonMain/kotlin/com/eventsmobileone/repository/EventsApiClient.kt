@@ -84,7 +84,7 @@ data class Category(
 )
 
 class EventsApiClientImpl(
-    private val baseUrl: String = "https://a5sma74inf.execute-api.ca-central-1.amazonaws.com/dev"
+    private val baseUrl: String = "https://api.event.tkhtech.com"
 ) : EventsApiClient {
     
     private val httpClient = PlatformHttpClient().client

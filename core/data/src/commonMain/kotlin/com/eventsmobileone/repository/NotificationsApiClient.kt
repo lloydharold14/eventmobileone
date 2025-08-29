@@ -23,7 +23,7 @@ interface NotificationsApiClient {
 
 class NotificationsApiClientImpl(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+    private val baseUrl: String = "https://api.event.tkhtech.com"
 ) : NotificationsApiClient {
     
     private val json = Json {

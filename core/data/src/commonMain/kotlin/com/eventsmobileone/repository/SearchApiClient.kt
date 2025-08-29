@@ -24,7 +24,7 @@ interface SearchApiClient {
 
 class SearchApiClientImpl(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+    private val baseUrl: String = "https://api.event.tkhtech.com"
 ) : SearchApiClient {
     
     private val json = Json {
