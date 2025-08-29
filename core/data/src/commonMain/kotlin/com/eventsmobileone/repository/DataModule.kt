@@ -2,6 +2,8 @@ package com.eventsmobileone.repository
 
 import org.koin.dsl.module
 import com.eventsmobileone.LocationService
+import com.eventsmobileone.LanguageService
+import com.eventsmobileone.repository.DefaultLanguageService
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
@@ -25,7 +27,7 @@ val dataModule = module {
     }
     
     // API Clients
-    single<AuthApiClient> { AuthApiClientImpl() }
+    single<AuthApiClient> { AuthApiClientImpl(languageService = get()) }
     single<EventsApiClient> { EventsApiClientImpl() }
     single<TicketsApiClient> { 
         TicketsApiClient(
@@ -66,6 +68,9 @@ val dataModule = module {
     
     // Location Service (using mock for now, will be replaced with real implementation)
     single<LocationService> { MockLocationService() }
+    
+    // Language Service
+    single<LanguageService> { DefaultLanguageService() }
     
     // Events Repository
     single<EventsRepository> { 

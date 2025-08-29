@@ -35,7 +35,8 @@ expect class PlatformHttpClient() {
 }
 
 class AuthApiClientImpl(
-    private val baseUrl: String = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev"
+    private val baseUrl: String = "https://r2nbmrglq6.execute-api.ca-central-1.amazonaws.com/dev",
+    private val languageService: com.eventsmobileone.LanguageService
 ) : AuthApiClient {
     
     private val httpClient = PlatformHttpClient().client
@@ -386,53 +387,26 @@ class AuthApiClientImpl(
     }
     
     private fun handleAuthError(error: com.eventsmobileone.ApiAuthError?): AppError {
-        return when {
-            error?.code == "INVALID_CREDENTIALS" -> AuthError.InvalidCredentials(
-                userFriendlyMessage = "Invalid email or password. Please try again."
-            )
-            error?.code == "USER_NOT_FOUND" -> AuthError.UserNotFound(
-                userFriendlyMessage = "User not found. Please check your email address."
-            )
-            error?.code == "EMAIL_ALREADY_EXISTS" -> AuthError.EmailAlreadyExists(
-                userFriendlyMessage = "An account with this email already exists."
-            )
-            error?.code == "WEAK_PASSWORD" -> AuthError.WeakPassword(
-                userFriendlyMessage = "Password is too weak. Please use a stronger password."
-            )
-            error?.code == "TOKEN_EXPIRED" -> AuthError.TokenExpired(
-                userFriendlyMessage = "Your session has expired. Please sign in again."
-            )
-            error?.code == "VALIDATION_ERROR" -> {
-                // Handle validation errors based on the message
-                when {
-                    error.message?.contains("email already exists", ignoreCase = true) == true -> 
-                        AuthError.EmailAlreadyExists(
-                            userFriendlyMessage = "An account with this email already exists. Please try signing in instead."
-                        )
-                    error.message?.contains("username", ignoreCase = true) == true -> 
-                        AuthError.WeakPassword(
-                            userFriendlyMessage = "Username error: ${error.message}"
-                        )
-                    error.message?.contains("password", ignoreCase = true) == true -> 
-                        AuthError.WeakPassword(
-                            userFriendlyMessage = "Password error: ${error.message}"
-                        )
-                    error.message?.contains("phone", ignoreCase = true) == true -> 
-                        AuthError.WeakPassword(
-                            userFriendlyMessage = "Phone number error: ${error.message}"
-                        )
-                    error.message?.contains("terms", ignoreCase = true) == true -> 
-                        AuthError.WeakPassword(
-                            userFriendlyMessage = "Please accept the terms and conditions to continue."
-                        )
-                    else -> AuthError.WeakPassword(
-                        userFriendlyMessage = error.message ?: "Validation error occurred. Please check your input and try again."
-                    )
-                }
-            }
-            else -> AuthError.InvalidCredentials(
-                userFriendlyMessage = error?.message ?: "Authentication failed. Please try again."
-            )
+        val language = languageService.getCurrentLanguage()
+        
+        val userFriendlyMessage = ErrorMessageMapper.mapErrorCodeToMessage(
+            errorCode = error?.code ?: "UNKNOWN_ERROR",
+            errorMessage = error?.message,
+            language = language
+        )
+        
+        return when (error?.code) {
+            "INVALID_CREDENTIALS" -> AuthError.InvalidCredentials(userFriendlyMessage = userFriendlyMessage)
+            "USER_NOT_FOUND" -> AuthError.UserNotFound(userFriendlyMessage = userFriendlyMessage)
+            "EMAIL_ALREADY_EXISTS" -> AuthError.EmailAlreadyExists(userFriendlyMessage = userFriendlyMessage)
+            "WEAK_PASSWORD" -> AuthError.WeakPassword(userFriendlyMessage = userFriendlyMessage)
+            "TOKEN_EXPIRED" -> AuthError.TokenExpired(userFriendlyMessage = userFriendlyMessage)
+            "VALIDATION_ERROR" -> AuthError.WeakPassword(userFriendlyMessage = userFriendlyMessage)
+            "UNAUTHORIZED" -> AuthError.InvalidCredentials(userFriendlyMessage = userFriendlyMessage)
+            "FORBIDDEN" -> AuthError.InvalidCredentials(userFriendlyMessage = userFriendlyMessage)
+            "NOT_FOUND" -> AuthError.UserNotFound(userFriendlyMessage = userFriendlyMessage)
+            "CONFLICT" -> AuthError.EmailAlreadyExists(userFriendlyMessage = userFriendlyMessage)
+            else -> AuthError.InvalidCredentials(userFriendlyMessage = userFriendlyMessage)
         }
     }
     

@@ -16,12 +16,6 @@ import com.eventsmobileone.usecase.SearchEventsByLocationUseCase
 import com.eventsmobileone.AppTheme
 import com.eventsmobileone.repository.*
 import com.eventsmobileone.usecase.GetCategoriesUseCase
-import com.eventsmobileone.repository.AuthApiClientImpl
-import com.eventsmobileone.repository.EventsApiClientImpl
-import com.eventsmobileone.repository.AuthRepositoryImpl
-import com.eventsmobileone.repository.EventsRepositoryImpl
-import com.eventsmobileone.repository.MockSecureStorage
-import com.eventsmobileone.repository.MockLocationService
 import com.eventsmobileone.usecase.GetEventsUseCase
 import com.eventsmobileone.auth.AuthViewModel
 import com.eventsmobileone.auth.LoginScreen
@@ -35,7 +29,7 @@ import com.eventsmobileone.usecase.SignUpUseCase
 import com.eventsmobileone.usecase.SignOutUseCase
 import com.eventsmobileone.usecase.GetCurrentUserUseCase
 import com.eventsmobileone.ui.createDispatcherProvider
-import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /**
  * Main App Root Component
@@ -52,17 +46,10 @@ fun AppRoot() {
         val scope = rememberCoroutineScope()
         
                        // Use real API repositories (from Koin)
-               val authApiClient = remember { AuthApiClientImpl() }
-               val eventsApiClient = remember { EventsApiClientImpl() }
-               val secureStorage = remember { MockSecureStorage() }
-               val locationService = remember { MockLocationService() }
-               
-               val authRepository = remember { 
-                   AuthRepositoryImpl(authApiClient, secureStorage) 
-               }
-               val eventsRepository = remember { 
-                   EventsRepositoryImpl(eventsApiClient) 
-               }
+               val authRepository: AuthRepository = koinInject()
+               val eventsRepository: EventsRepository = koinInject()
+               val secureStorage: SecureStorage = koinInject()
+               val locationService: LocationService = koinInject()
             
             val eventsViewModel = remember {
                 EventsViewModel(
