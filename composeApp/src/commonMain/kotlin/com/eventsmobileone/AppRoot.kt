@@ -22,6 +22,7 @@ import com.eventsmobileone.auth.LoginScreen
 import com.eventsmobileone.auth.SignUpScreen
 import com.eventsmobileone.auth.ModernLoginScreen
 import com.eventsmobileone.auth.ModernSignUpScreen
+import com.eventsmobileone.auth.ForgotPasswordScreen
 import com.eventsmobileone.events.EventDetailScreen
 import com.eventsmobileone.usecase.SignInUseCase
 import com.eventsmobileone.usecase.SignInWithOAuthUseCase
@@ -79,6 +80,7 @@ fun AppRoot() {
                 signInWithOAuthUseCase = SignInWithOAuthUseCase(authRepository),
                 signOutUseCase = SignOutUseCase(authRepository, dispatcherProvider.io),
                 getCurrentUserUseCase = GetCurrentUserUseCase(authRepository, dispatcherProvider.io),
+                authRepository = authRepository,
                 dispatcher = dispatcherProvider.main
             )
         }
@@ -150,8 +152,7 @@ fun AppRoot() {
                         currentScreen = Screen.SignUp
                     }
                     is AuthEffect.NavigateToForgotPassword -> {
-                        // TODO: Implement forgot password screen
-                        println("Navigate to forgot password")
+                        currentScreen = Screen.ForgotPassword
                     }
                     is AuthEffect.ShowError -> {
                         println("Auth error: ${effect.error.userFriendlyMessage}")
@@ -172,13 +173,21 @@ fun AppRoot() {
                     state = authState,
                     onEvent = authViewModel::onEvent,
                     onNavigateToSignUp = { currentScreen = Screen.SignUp },
-                    onNavigateToForgotPassword = { /* TODO: Implement forgot password */ }
+                    onNavigateToForgotPassword = { currentScreen = Screen.ForgotPassword }
                 )
             }
             Screen.SignUp -> {
                 ModernSignUpScreen(
                     state = authState,
                     onEvent = authViewModel::onEvent,
+                    onNavigateToLogin = { currentScreen = Screen.Login }
+                )
+            }
+            Screen.ForgotPassword -> {
+                ForgotPasswordScreen(
+                    state = authState,
+                    onEvent = authViewModel::onEvent,
+                    onNavigateBack = { currentScreen = Screen.Login },
                     onNavigateToLogin = { currentScreen = Screen.Login }
                 )
             }

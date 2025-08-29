@@ -56,6 +56,7 @@ val authModule = module {
             signInWithOAuthUseCase = get(),
             signOutUseCase = get(),
             getCurrentUserUseCase = get(),
+            authRepository = get(),
             dispatcher = get<com.eventsmobileone.ui.DispatcherProvider>().main
         )
     }

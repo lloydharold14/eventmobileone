@@ -359,12 +359,48 @@ class AuthApiClientImpl(
     
     override suspend fun forgotPassword(email: String): Result<Unit> {
         return try {
-            httpClient.post("$baseUrl/auth/forgot-password") {
+            println("DEBUG: Attempting forgot password for email: $email")
+            println("DEBUG: Using base URL: $baseUrl")
+            
+            val requestBody = mapOf("email" to email)
+            println("DEBUG: Request body: $requestBody")
+            
+            val response = httpClient.post("$baseUrl/auth/forgot-password") {
                 contentType(ContentType.Application.Json)
-                setBody(mapOf("email" to email))
+                addMobileUserAgent()
+                headers {
+                    append("Accept-Language", languageService.getAcceptLanguageHeader())
+                }
+                setBody(requestBody)
             }
-            Result.success(Unit)
+            
+            println("DEBUG: Response status: ${response.status}")
+            println("DEBUG: Response body: ${response.bodyAsText()}")
+            
+            if (response.status.value in 200..299) {
+                Result.success(Unit)
+            } else {
+                // Handle error response
+                val errorBody = response.bodyAsText()
+                println("DEBUG: Error response body: $errorBody")
+                
+                try {
+                    val errorResponse = json.decodeFromString<Map<String, Any>>(errorBody)
+                    val error = errorResponse["error"] as? Map<String, Any>
+                    val apiError = ApiAuthError(
+                        code = error?.get("code") as? String ?: "UNKNOWN_ERROR",
+                        message = error?.get("message") as? String ?: "Unknown error occurred",
+                        details = null,
+                        timestamp = error?.get("timestamp") as? String
+                    )
+                    Result.failure(handleAuthError(apiError))
+                } catch (e: Exception) {
+                    println("DEBUG: Error parsing error response: ${e.message}")
+                    Result.failure(handleNetworkException(e))
+                }
+            }
         } catch (e: Exception) {
+            println("DEBUG: Forgot password failed! Error: ${e.message}")
             Result.failure(handleNetworkException(e))
         }
     }

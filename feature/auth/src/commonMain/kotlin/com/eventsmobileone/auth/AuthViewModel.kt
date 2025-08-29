@@ -3,6 +3,7 @@ package com.eventsmobileone.auth
 import com.eventsmobileone.*
 import com.eventsmobileone.AuthEffect
 import com.eventsmobileone.AppError
+import com.eventsmobileone.repository.AuthRepository
 import com.eventsmobileone.usecase.GetCurrentUserUseCase
 import com.eventsmobileone.usecase.SignInUseCase
 import com.eventsmobileone.usecase.SignInWithOAuthUseCase
@@ -23,6 +24,7 @@ class AuthViewModel(
     private val signInWithOAuthUseCase: SignInWithOAuthUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val authRepository: AuthRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
     private val viewModelScope = CoroutineScope(SupervisorJob() + dispatcher)
@@ -220,9 +222,20 @@ class AuthViewModel(
         
         viewModelScope.launch(dispatcher) {
             try {
-                // TODO: Implement forgot password
-                _state.value = _state.value.copy(isLoading = false)
-                _effect.emit(AuthEffect.ShowSuccess("Password reset email sent to $email"))
+                val result = authRepository.forgotPassword(email)
+                if (result.isSuccess) {
+                    _state.value = _state.value.copy(isLoading = false)
+                    _effect.emit(AuthEffect.ShowSuccess("Password reset email sent to $email"))
+                } else {
+                    val error = result.exceptionOrNull() as? AppError ?: GeneralError.UnknownError(
+                        userFriendlyMessage = "Failed to send reset email"
+                    )
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        error = error
+                    )
+                    _effect.emit(AuthEffect.ShowError(error))
+                }
             } catch (e: Exception) {
                 val error = when (e) {
                     is AppError -> e
