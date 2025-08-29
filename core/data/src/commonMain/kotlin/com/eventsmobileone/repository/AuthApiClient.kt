@@ -386,24 +386,52 @@ class AuthApiClientImpl(
     }
     
     private fun handleAuthError(error: com.eventsmobileone.ApiAuthError?): AppError {
-        return when (error?.code) {
-            "INVALID_CREDENTIALS" -> AuthError.InvalidCredentials(
+        return when {
+            error?.code == "INVALID_CREDENTIALS" -> AuthError.InvalidCredentials(
                 userFriendlyMessage = "Invalid email or password. Please try again."
             )
-            "USER_NOT_FOUND" -> AuthError.UserNotFound(
+            error?.code == "USER_NOT_FOUND" -> AuthError.UserNotFound(
                 userFriendlyMessage = "User not found. Please check your email address."
             )
-            "EMAIL_ALREADY_EXISTS" -> AuthError.EmailAlreadyExists(
+            error?.code == "EMAIL_ALREADY_EXISTS" -> AuthError.EmailAlreadyExists(
                 userFriendlyMessage = "An account with this email already exists."
             )
-            "WEAK_PASSWORD" -> AuthError.WeakPassword(
+            error?.code == "WEAK_PASSWORD" -> AuthError.WeakPassword(
                 userFriendlyMessage = "Password is too weak. Please use a stronger password."
             )
-            "TOKEN_EXPIRED" -> AuthError.TokenExpired(
+            error?.code == "TOKEN_EXPIRED" -> AuthError.TokenExpired(
                 userFriendlyMessage = "Your session has expired. Please sign in again."
             )
+            error?.code == "VALIDATION_ERROR" -> {
+                // Handle validation errors based on the message
+                when {
+                    error.message?.contains("email already exists", ignoreCase = true) == true -> 
+                        AuthError.EmailAlreadyExists(
+                            userFriendlyMessage = "An account with this email already exists. Please try signing in instead."
+                        )
+                    error.message?.contains("username", ignoreCase = true) == true -> 
+                        AuthError.WeakPassword(
+                            userFriendlyMessage = "Username error: ${error.message}"
+                        )
+                    error.message?.contains("password", ignoreCase = true) == true -> 
+                        AuthError.WeakPassword(
+                            userFriendlyMessage = "Password error: ${error.message}"
+                        )
+                    error.message?.contains("phone", ignoreCase = true) == true -> 
+                        AuthError.WeakPassword(
+                            userFriendlyMessage = "Phone number error: ${error.message}"
+                        )
+                    error.message?.contains("terms", ignoreCase = true) == true -> 
+                        AuthError.WeakPassword(
+                            userFriendlyMessage = "Please accept the terms and conditions to continue."
+                        )
+                    else -> AuthError.WeakPassword(
+                        userFriendlyMessage = error.message ?: "Validation error occurred. Please check your input and try again."
+                    )
+                }
+            }
             else -> AuthError.InvalidCredentials(
-                userFriendlyMessage = "Authentication failed. Please try again."
+                userFriendlyMessage = error?.message ?: "Authentication failed. Please try again."
             )
         }
     }
