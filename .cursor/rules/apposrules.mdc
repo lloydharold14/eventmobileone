@@ -1,4 +1,0 @@
----
-alwaysApply: true
----
-the app is only for android and ios and has to build for both platform before commiting

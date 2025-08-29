@@ -17,7 +17,7 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 
-# Cursor IDE files
+# Cursor AI IDE files - Comprehensive patterns
 .cursor/
 .cursorrules
 .cursorignore
@@ -481,4 +481,4 @@ captures
 .cursor-equilibrium/
 .cursor-stability/
 .cursor-consistency/
-.cursor-reliability**
+.cursor-reliability
